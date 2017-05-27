@@ -1,0 +1,32 @@
+{
+  "name": "homebridge-ledmatrix",
+  "version": "1.0.0",
+  "description": "A HomeBridge plugin for controlling led matrix brightness and color.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mick111/homebridge-ledmatrix.git"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "engines": {
+    "node": ">=0.12.0",
+    "homebridge": ">=0.2.0"
+  },
+  "author": "Michael Mouchous",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mick111/homebridge-ledmatrix/issues"
+  },
+  "homepage": "https://github.com/mick111/homebridge-ledmatrix#readme",
+  "dependencies": {
+    "onoff" : "1.1.0"
+  }
+}
