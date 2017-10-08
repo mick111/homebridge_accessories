@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mick111/homebridge-thermostat-ds18b20-GPIO.git"
+    "url": "git+https://github.com/mick111/homebridge_accessories.git"
   },
   "files": [
     "index.js",
@@ -28,6 +28,8 @@
   },
   "homepage": "https://github.com/mick111/homebridge-thermostat-ds18b20-GPIO#readme",
   "dependencies": {
-    "onoff" : "1.1.0"
+    "https": "1.0.0",
+    "www-authenticate" : "0.6.2",
+    "wol" : "1.0.3"
   }
 }
