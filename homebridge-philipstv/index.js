@@ -232,6 +232,10 @@ PhilipsTV.prototype = {
             .getCharacteristic(Characteristic.On)
             .on('get', this.getPowerState.bind(this))
             .on('set', this.setPowerState.bind(this));
+          this.fanService
+            .addCharacteristic(Characteristic.RotationSpeed)
+            .on('get', this.getVolume.bind(this))
+            .on('set', this.setVolume.bind(this));
           // this.fanService
           //   .addCharacteristic(Characteristic.RotationDirection)
           //   .on('get', this.getRotationDirection.bind(this))
