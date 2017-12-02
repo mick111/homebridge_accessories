@@ -60,28 +60,25 @@ function PhilipsTV(log, config) {
 
 
 PhilipsTV.prototype = {
-  turnOnIfNeeded: function(self, path, method, strjson, homebridge_callback) {
-    json = JSON.parse(strjson);
+  turnOnIfNeeded: function(self, path, method, json, homebridge_callback) {
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'Standby') {
       self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
 
     }
     homebridge_callback();
   },
-  turnOffIfNeeded: function(self, path, method, strjson, homebridge_callback) {
-    json = JSON.parse(strjson);
+  turnOffIfNeeded: function(self, path, method, json, homebridge_callback) {
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'On') {
       self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
     }
     homebridge_callback();
   },
-  getVolumeHandler: function(self, path, method, strjson, homebridge_callback) {
-    json = JSON.parse(strjson);
+  getVolumeHandler: function(self, path, method, json, homebridge_callback) {
     if (path=='/6/audio/volume' && method == 'GET' && json != undefined) {
       homebridge_callback(json.current);
     }
   },
-  setVolumeHandler: function(self, path, method, strjson, homebridge_callback) {
+  setVolumeHandler: function(self, path, method, json, homebridge_callback) {
     homebridge_callback();
   },
   makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self) {
