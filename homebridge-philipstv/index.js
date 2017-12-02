@@ -170,6 +170,36 @@ PhilipsTV.prototype = {
       this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
     }
   },
+  getRotationDirection: function(callback) {
+    //wol.wake(this.macAddress);
+    //this.log("Get powerstate");
+    //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
+    callback(null, Characteristic.RotationDirection.CLOCKWISE);
+  },
+	setRotationDirection: function(direction, callback) {
+    if (Characteristic.RotationDirection.CLOCKWISE == direction) {
+      //wol.wake(this.macAddress);
+      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
+    } else if (Characteristic.RotationDirection.COUNTER_CLOCKWISE == direction) {
+      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
+    }
+    callback();
+  },
+  getSwingMode: function(callback) {
+    //wol.wake(this.macAddress);
+    //this.log("Get powerstate");
+    //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
+    callback(null, Characteristic.SwingMode.SWING_ENABLED);
+  },
+	setSwingMode: function(mode, callback) {
+    if (Characteristic.SwingMode.SWING_DISABLED == mode) {
+      //wol.wake(this.macAddress);
+      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
+    } else if (Characteristic.SwingMode.SWING_ENABLED == mode) {
+      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
+    }
+    callback();
+  },
   getVolume: function(callback) {
     wol.wake(this.macAddress);
     this.log("Get Volume");
@@ -194,16 +224,23 @@ PhilipsTV.prototype = {
       .setCharacteristic(Characteristic.Model, this.name)
       .setCharacteristic(Characteristic.SerialNumber, this.macAddress);
 
-    this.fanService = new Service.Fan(this.name);
-    this.fanService
-      .getCharacteristic(Characteristic.On)
-      .on('get', this.getPowerState.bind(this))
-      .on('set', this.setPowerState.bind(this));
-
-    this.fanService
-    .addCharacteristic(Characteristic.RotationSpeed)
-      .on('get', this.getVolume.bind(this))
-      .on('set', this.setVolume.bind(this));
+          this.fanService = new Service.Fan(this.name);
+          this.fanService
+            .getCharacteristic(Characteristic.On)
+            .on('get', this.getPowerState.bind(this))
+            .on('set', this.setPowerState.bind(this));
+          this.fanService
+            .addCharacteristic(Characteristic.RotationDirection)
+            .on('get', this.getRotationDirection.bind(this))
+            .on('set', this.setRotationDirection.bind(this));
+          this.fanService
+            .addCharacteristic(Characteristic.SwingMode)
+            .on('get', this.getSwingMode.bind(this))
+            .on('set', this.setSwingMode.bind(this));
+          this.fanService
+          .addCharacteristic(Characteristic.RotationSpeed)
+            .on('get', this.getVolume.bind(this))
+            .on('set', this.setVolume.bind(this));
 
     return [informationService, this.fanService];
     }
