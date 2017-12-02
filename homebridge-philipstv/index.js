@@ -186,18 +186,17 @@ PhilipsTV.prototype = {
       this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback);
     }
   },
-
-  getBrightness: function(callback) {
+  getVolume: function(callback) {
     wol.wake(this.macAddress);
     this.log("Get Volume");
     this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler, 10, callback);
   },
-	setBrightness: function(brightness, callback) {
-    if (brightness > 30) {
+	setVolume: function(value, callback) {
+    if (value > 30) {
       callback();
       return;
     }
-    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": brightness, "muted": false}), undefined, this.setVolumeHandler, 10, callback);
+    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler, 10, callback);
   },
 
   identify: function(callback) {
@@ -207,21 +206,21 @@ PhilipsTV.prototype = {
   getServices: function() {
     var informationService = new Service.AccessoryInformation();
     informationService
-      .setCharacteristic(Characteristic.Manufacturer, "MM Manufacturer")
-      .setCharacteristic(Characteristic.Model, "MM Model")
-      .setCharacteristic(Characteristic.SerialNumber, "MM SN");
+      .setCharacteristic(Characteristic.Manufacturer, this.name)
+      .setCharacteristic(Characteristic.Model, this.name)
+      .setCharacteristic(Characteristic.SerialNumber, this.macAddress);
 
-    this.lightbulbService = new Service.Lightbulb(this.name);
-    this.lightbulbService
+    this.fanService = new Service.Fan(this.name);
+    this.fanService
       .getCharacteristic(Characteristic.On)
       .on('get', this.getPowerState.bind(this))
       .on('set', this.setPowerState.bind(this));
 
-    this.lightbulbService
-    .addCharacteristic(new Characteristic.Brightness())
-      .on('get', this.getBrightness.bind(this))
-      .on('set', this.setBrightness.bind(this));
+    this.fanService
+    .addCharacteristic(Characteristic.RotationSpeed)
+      .on('get', this.getVolume.bind(this))
+      .on('set', this.setVolume.bind(this));
 
-    return [informationService, this.lightbulbService];
+    return [informationService, this.fanService];
     }
 };
