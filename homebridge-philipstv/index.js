@@ -147,7 +147,7 @@ PhilipsTV.prototype = {
     // Configuration of error
     request.on('error', (e) => {
       self.log('Error:', e.code);
-      wol.wake(this.macAddress);
+      wol.wake(self.macAddress);
 
       if (tries > 0 && (e.code == 'ECONNREFUSED' || e.code == 'EHOSTDOWN')) {
         self.log("Programming to reiter request in 1 second");
@@ -158,7 +158,7 @@ PhilipsTV.prototype = {
     request.setTimeout(1000);
     request.on('timeout', () => {
       self.log('Request timeout, waking device');
-      wol.wake(this.macAddress);
+      wol.wake(self.macAddress);
     });
 
     //this.log('Calling end():', request);
@@ -166,13 +166,11 @@ PhilipsTV.prototype = {
     request.end();
   },
   getPowerState: function(callback) {
-    wol.wake(this.macAddress);
     this.log("Get powerstate");
     this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
   },
 	setPowerState: function(powerOn, callback) {
     if (powerOn) {
-      wol.wake(this.macAddress);
       this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
     } else {
       this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
@@ -194,12 +192,10 @@ PhilipsTV.prototype = {
   //   callback();
   // },
   getSwingMode: function(callback) {
-    wol.wake(this.macAddress);
     this.log("Get ambilight currentconfiguration");
     this.makeRequest('/6/ambilight/currentconfiguration', 'GET', undefined, undefined, this.ambilightcurrentconfigurationHandler, 10, callback, this);
   },
 	setSwingMode: function(mode, callback) {
-    wol.wake(this.macAddress);
     if (Characteristic.SwingMode.SWING_DISABLED == mode) {
       this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"OFF","isExpert":false}), undefined, this.setAmbilightcurrentconfigurationHandler, 10, callback, this);
     } else if (Characteristic.SwingMode.SWING_ENABLED == mode) {
@@ -209,7 +205,6 @@ PhilipsTV.prototype = {
     }
   },
   getVolume: function(callback) {
-    wol.wake(this.macAddress);
     this.log("Get Volume");
     this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler, 10, callback, this);
   },
