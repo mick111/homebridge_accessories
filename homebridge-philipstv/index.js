@@ -94,7 +94,7 @@ PhilipsTV.prototype = {
     //this.log('Constructing request', method, path, ((tries == undefined) ? "" : "("+tries+")"));
     request = https.request(options, (response) => {
       // Status code of response
-      self.log('Status Code:', response.statusCode);
+      //self.log('Status Code:', response.statusCode);
 
       // Variable to concatenate chunks of received data
       var str = '';
