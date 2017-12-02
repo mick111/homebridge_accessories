@@ -84,7 +84,7 @@ PhilipsTV.prototype = {
   },
   ambilightcurrentconfigurationHandler: function(self, path, method, json, homebridge_callback) {
     if (path=='/6/ambilight/currentconfiguration' && method == 'GET' && json != undefined) {
-      homebridge_callback(null, json.styleName == "OFF" ? Characteristic.SwingMode.SWING_DISABLED : Characteristic.SwingMode.SWING_ENABLED));
+      homebridge_callback(null, json.styleName == "OFF" ? Characteristic.SwingMode.SWING_DISABLED : Characteristic.SwingMode.SWING_ENABLED);
     }
   },
   setAmbilightcurrentconfigurationHandler: function(self, path, method, json, homebridge_callback) {
