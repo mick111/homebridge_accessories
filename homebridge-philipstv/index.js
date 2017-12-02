@@ -176,11 +176,11 @@ PhilipsTV.prototype = {
     this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler, 10, callback, this);
   },
 	setVolume: function(value, callback) {
-    if (value > 30) {
+    if (value > 90) {
       callback();
       return;
     }
-    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler, 10, callback, this);
+    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": Math.round(value*60/100), "muted": false}), undefined, this.setVolumeHandler, 10, callback, this);
   },
   identify: function(callback) {
 		this.log("Identify requested!");
