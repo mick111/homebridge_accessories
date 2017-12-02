@@ -23,7 +23,6 @@
       "platforms": []
 }
 */
-
 var Service, Characteristic;
 var https = require('https');
 var wol = require('wol');
@@ -55,51 +54,35 @@ function PhilipsTV(log, config) {
     agent: this.keepAliveAgent,
     rejectUnauthorized: false
   };
-
   this.macAddress = config["wol_mac"];
-
   this.on_www_authenticate = www_authenticate(config["username"], config["password"]);
-
-  this.infiniteWakeOnLAN(config["WakeOnLANPool"]);
 };
 
 
-
-
 PhilipsTV.prototype = {
-  turnOnIfNeeded: function(self, path, method, json, homebridge_callback) {
+  turnOnIfNeeded: function(self, path, method, strjson, homebridge_callback) {
+    json = JSON.parse(strjson);
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'Standby') {
       self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
 
     }
     homebridge_callback();
   },
-  turnOffIfNeeded: function(self, path, method, json, homebridge_callback) {
+  turnOffIfNeeded: function(self, path, method, strjson, homebridge_callback) {
+    json = JSON.parse(strjson);
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'On') {
       self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
     }
     homebridge_callback();
   },
-  powerstateHandler: function(self, path, method, json, homebridge_callback) {
-    if (path=='/6/powerstate' && method == 'GET' && json != undefined) {
-      homebridge_callback(null, json.powerstate == 'On');
-    }
-  },
-  getVolumeHandler: function(self, path, method, json, homebridge_callback) {
+  getVolumeHandler: function(self, path, method, strjson, homebridge_callback) {
+    json = JSON.parse(strjson);
     if (path=='/6/audio/volume' && method == 'GET' && json != undefined) {
       homebridge_callback(json.current);
     }
   },
-  setVolumeHandler: function(self, path, method, json, homebridge_callback) {
+  setVolumeHandler: function(self, path, method, strjson, homebridge_callback) {
     homebridge_callback();
-  },
-  infiniteWakeOnLAN: function(time) {
-    //this.log("Waking...", this.macAddress);
-    wol.wake(this.macAddress);
-    self = this;
-    setTimeout(function() {
-        self.infiniteWakeOnLAN(time);
-    }, time);
   },
   makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback) {
     var options = this.optionsBase;
@@ -108,17 +91,20 @@ PhilipsTV.prototype = {
 
     self = this;
 
-    //this.log('Constructing request with options:', options);
+    //this.log('Constructing request', method, path, ((tries == undefined) ? "" : "("+tries+")"));
     request = https.request(options, (response) => {
-      // Status code of result
-      //this.log('statusCode:', response.statusCode);
+      // Status code of response
+      self.log('Status Code:', response.statusCode);
 
+      // Variable to concatenate chunks of received data
       var str = '';
-      // result data listener
+
+      // Chunk of data listener
       response.on('data', function (chunk) { str += chunk; });
-      // result end listener
+
+      // End of request listener
       response.on('end', function () {
-        //var obj = JSON.parse(str);
+        // A status code of 200 indicates that the response is OK
         if (response.statusCode == 200 && callback != undefined) {
           if (str == '') {
             callback(self, path, method, undefined, homebridge_callback);
@@ -136,7 +122,7 @@ PhilipsTV.prototype = {
           var authenticator = this.on_www_authenticate(response.headers['www-authenticate']);
           var authorizationHeader = authenticator.authorize(method, path)
           response.resume();
-          this.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback);
+          self.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback);
       }
     });
 
@@ -152,36 +138,34 @@ PhilipsTV.prototype = {
 
     // Configuration of error
     request.on('error', (e) => {
-      this.log(e);
-      if (tries > 0) {
-        wol.wake(this.macAddress);
-        self = this;
-        setTimeout(function() {
-            self.makeRequest(path, method, postData, authorizationHeader, callback, tries-1, homebridge_callback);
-        }, 1000);
+      self.log('Error:', e.code);
+      wol.wake(this.macAddress);
+
+      if (tries > 0 && (e.code == 'ECONNREFUSED' || e.code == 'EHOSTDOWN')) {
+        self.log("Programming to reiter request in 1 second");
+        setTimeout(self.makeRequest, 1000, path, method, postData, authorizationHeader, callback, tries-1, homebridge_callback);
       }
     });
+
     request.setTimeout(1000);
+    request.on('timeout', () => {
+      self.log('Request timeout, waking device');
+      wol.wake(this.macAddress);
+    });
 
     //this.log('Calling end():', request);
+    wol.wake(this.macAddress);
     request.end();
   },
   getPowerState: function(callback) {
     wol.wake(this.macAddress);
     this.log("Get powerstate");
-
-    self = this;
-    //setTimeout(function() {
-      self.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback);
-    //}, 1000);
+    this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback);
   },
 	setPowerState: function(powerOn, callback) {
     if (powerOn) {
       wol.wake(this.macAddress);
-      self = this;
-      //setTimeout(function() {
-        self.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback);
-      //}, 1000);
+      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback);
     } else {
       this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback);
     }
@@ -198,7 +182,6 @@ PhilipsTV.prototype = {
     }
     this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler, 10, callback);
   },
-
   identify: function(callback) {
 		this.log("Identify requested!");
 		callback(); // success
