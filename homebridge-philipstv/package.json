@@ -24,9 +24,9 @@
   "author": "Michael Mouchous",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mick111/homebridge-thermostat-ds18b20-GPIO/issues"
+    "url": "https://github.com/mick111/homebridge_accessories/issues"
   },
-  "homepage": "https://github.com/mick111/homebridge-thermostat-ds18b20-GPIO#readme",
+  "homepage": "https://github.com/mick111/homebridge_accessories/tree/master/homebridge-philipstv",
   "dependencies": {
     "https": "1.0.0",
     "www-authenticate" : "0.6.2",
