@@ -75,7 +75,12 @@ PhilipsTV.prototype = {
   },
   getVolumeHandler: function(self, path, method, json, homebridge_callback) {
     if (path=='/6/audio/volume' && method == 'GET' && json != undefined) {
-      homebridge_callback(json.current);
+      homebridge_callback(null, json.current);
+    }
+  },
+  powerstateHandler: function(self, path, method, json, homebridge_callback) {
+    if (path=='/6/powerstate' && method == 'GET' && json != undefined) {
+      homebridge_callback(null, json.powerstate == 'On');
     }
   },
   setVolumeHandler: function(self, path, method, json, homebridge_callback) {
