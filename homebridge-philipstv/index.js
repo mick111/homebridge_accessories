@@ -82,6 +82,14 @@ PhilipsTV.prototype = {
       homebridge_callback(null, json.powerstate == 'On');
     }
   },
+  ambilightcurrentconfigurationHandler: function(self, path, method, json, homebridge_callback) {
+    if (path=='/6/ambilight/currentconfiguration' && method == 'GET' && json != undefined) {
+      homebridge_callback(null, json.styleName == "OFF" ? Characteristic.SwingMode.SWING_DISABLED : Characteristic.SwingMode.SWING_ENABLED));
+    }
+  },
+  setAmbilightcurrentconfigurationHandler: function(self, path, method, json, homebridge_callback) {
+    homebridge_callback();
+  },
   setVolumeHandler: function(self, path, method, json, homebridge_callback) {
     homebridge_callback();
   },
@@ -170,35 +178,35 @@ PhilipsTV.prototype = {
       this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
     }
   },
-  getRotationDirection: function(callback) {
-    //wol.wake(this.macAddress);
-    //this.log("Get powerstate");
-    //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
-    callback(null, Characteristic.RotationDirection.CLOCKWISE);
-  },
-	setRotationDirection: function(direction, callback) {
-    if (Characteristic.RotationDirection.CLOCKWISE == direction) {
-      //wol.wake(this.macAddress);
-      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
-    } else if (Characteristic.RotationDirection.COUNTER_CLOCKWISE == direction) {
-      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
-    }
-    callback();
-  },
+  // getRotationDirection: function(callback) {
+  //   //wol.wake(this.macAddress);
+  //   //this.log("Get powerstate");
+  //   //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
+  //   callback(null, Characteristic.RotationDirection.CLOCKWISE);
+  // },
+	// setRotationDirection: function(direction, callback) {
+  //   if (Characteristic.RotationDirection.CLOCKWISE == direction) {
+  //     //wol.wake(this.macAddress);
+  //     //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
+  //   } else if (Characteristic.RotationDirection.COUNTER_CLOCKWISE == direction) {
+  //     //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
+  //   }
+  //   callback();
+  // },
   getSwingMode: function(callback) {
-    //wol.wake(this.macAddress);
-    //this.log("Get powerstate");
-    //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
-    callback(null, Characteristic.SwingMode.SWING_ENABLED);
+    wol.wake(this.macAddress);
+    this.log("Get ambilight currentconfiguration");
+    this.makeRequest('/6/ambilight/currentconfiguration', 'GET', undefined, undefined, this.ambilightcurrentconfigurationHandler, 10, callback, this);
   },
 	setSwingMode: function(mode, callback) {
+    wol.wake(this.macAddress);
     if (Characteristic.SwingMode.SWING_DISABLED == mode) {
-      //wol.wake(this.macAddress);
-      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
+      this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"OFF","isExpert":false}), undefined, this.setAmbilightcurrentconfigurationHandler, 10, callback, this);
     } else if (Characteristic.SwingMode.SWING_ENABLED == mode) {
-      //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
+      this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"FOLLOW_VIDEO","isExpert":false,"menuSetting":"STANDARD"}), undefined, this.setAmbilightcurrentconfigurationHandler, 10, callback, this);
+    } else {
+      callback();
     }
-    callback();
   },
   getVolume: function(callback) {
     wol.wake(this.macAddress);
@@ -229,18 +237,14 @@ PhilipsTV.prototype = {
             .getCharacteristic(Characteristic.On)
             .on('get', this.getPowerState.bind(this))
             .on('set', this.setPowerState.bind(this));
-          this.fanService
-            .addCharacteristic(Characteristic.RotationDirection)
-            .on('get', this.getRotationDirection.bind(this))
-            .on('set', this.setRotationDirection.bind(this));
+          // this.fanService
+          //   .addCharacteristic(Characteristic.RotationDirection)
+          //   .on('get', this.getRotationDirection.bind(this))
+          //   .on('set', this.setRotationDirection.bind(this));
           this.fanService
             .addCharacteristic(Characteristic.SwingMode)
             .on('get', this.getSwingMode.bind(this))
             .on('set', this.setSwingMode.bind(this));
-          this.fanService
-          .addCharacteristic(Characteristic.RotationSpeed)
-            .on('get', this.getVolume.bind(this))
-            .on('set', this.setVolume.bind(this));
 
     return [informationService, this.fanService];
     }
