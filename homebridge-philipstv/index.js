@@ -63,13 +63,12 @@ PhilipsTV.prototype = {
   turnOnIfNeeded: function(self, path, method, json, homebridge_callback) {
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'Standby') {
       self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
-
     }
     homebridge_callback();
   },
   turnOffIfNeeded: function(self, path, method, json, homebridge_callback) {
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'On') {
-      self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
+      self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }";
     }
     homebridge_callback();
   },
@@ -87,6 +86,7 @@ PhilipsTV.prototype = {
     homebridge_callback();
   },
   makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self) {
+    if (self == undefined) { self = this; }
     var options = self.optionsBase;
     options['path'] = path;
     options['method'] = method;
