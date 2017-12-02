@@ -84,12 +84,10 @@ PhilipsTV.prototype = {
   setVolumeHandler: function(self, path, method, strjson, homebridge_callback) {
     homebridge_callback();
   },
-  makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback) {
-    var options = this.optionsBase;
+  makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self) {
+    var options = self.optionsBase;
     options['path'] = path;
     options['method'] = method;
-
-    self = this;
 
     //this.log('Constructing request', method, path, ((tries == undefined) ? "" : "("+tries+")"));
     request = https.request(options, (response) => {
@@ -122,7 +120,7 @@ PhilipsTV.prototype = {
           var authenticator = this.on_www_authenticate(response.headers['www-authenticate']);
           var authorizationHeader = authenticator.authorize(method, path)
           response.resume();
-          self.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback);
+          self.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self);
       }
     });
 
@@ -143,7 +141,7 @@ PhilipsTV.prototype = {
 
       if (tries > 0 && (e.code == 'ECONNREFUSED' || e.code == 'EHOSTDOWN')) {
         self.log("Programming to reiter request in 1 second");
-        setTimeout(self.makeRequest, 1000, path, method, postData, authorizationHeader, callback, tries-1, homebridge_callback);
+        setTimeout(self.makeRequest, 1000, path, method, postData, authorizationHeader, callback, tries-1, homebridge_callback, self);
       }
     });
 
@@ -160,27 +158,27 @@ PhilipsTV.prototype = {
   getPowerState: function(callback) {
     wol.wake(this.macAddress);
     this.log("Get powerstate");
-    this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback);
+    this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
   },
 	setPowerState: function(powerOn, callback) {
     if (powerOn) {
       wol.wake(this.macAddress);
-      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback);
+      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
     } else {
-      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback);
+      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
     }
   },
   getVolume: function(callback) {
     wol.wake(this.macAddress);
     this.log("Get Volume");
-    this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler, 10, callback);
+    this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler, 10, callback, this);
   },
 	setVolume: function(value, callback) {
     if (value > 30) {
       callback();
       return;
     }
-    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler, 10, callback);
+    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler, 10, callback, this);
   },
   identify: function(callback) {
 		this.log("Identify requested!");
