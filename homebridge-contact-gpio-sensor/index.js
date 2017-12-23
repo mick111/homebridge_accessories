@@ -33,7 +33,7 @@ function ContactGPIOSensor(log, config) {
     var that = this;
     this.log = log;
     this.name = config.name;
-    this.pinId = config.pinId;
+    this.pinId = config.BCM_GPIO;
     this.retryCount = config.retryCount || RETRY_COUNT;
     
     log(config.contactValue)
