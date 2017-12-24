@@ -182,7 +182,7 @@ Thermostat.prototype = {
     callback(null, this.heatingCoolingState);
   },
   setCurrentHeatingCoolingState: function(value, callback) {
-    this.heatingCoolingState = min(this.maxHeatingValue,value);
+    this.heatingCoolingState = Math.min(this.maxHeatingValue, value);
     callback(null);
   },
 
