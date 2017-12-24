@@ -215,10 +215,7 @@ Thermostat.prototype = {
     callback(null, this.targetTemperature);
   },
   setTargetTemperature: function(value, callback) {
-    this.log("this.maxHeatingValue" + this.maxHeatingValue);
-    this.log("value" + value);
     this.targetTemperature = Math.min(this.maxHeatingValue, value);
-    this.log("this.targetTemperature" + this.targetTemperature);
     callback();
   },
 
@@ -248,14 +245,29 @@ Thermostat.prototype = {
     thermostatService
     .getCharacteristic(Characteristic.TargetHeatingCoolingState)
     .on('get', this.getTargetHeatingCoolingState.bind(this))
-    .on('set', this.setTargetHeatingCoolingState.bind(this));
+    .on('set', this.setTargetHeatingCoolingState.bind(this))
+    .setProps({
+    format: Characteristic.Formats.UINT8,
+    maxValue: 3,
+    minValue: 0,
+    validValues: [0,3],
+    perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+    });
     thermostatService
     .getCharacteristic(Characteristic.CurrentTemperature)
     .on('get', this.getCurrentTemperature.bind(this));
     thermostatService
     .getCharacteristic(Characteristic.TargetTemperature)
     .on('get', this.getTargetTemperature.bind(this))
-    .on('set', this.setTargetTemperature.bind(this));
+    .on('set', this.setTargetTemperature.bind(this))
+    .setProps({
+    format: Characteristic.Formats.FLOAT,
+    unit: Characteristic.Units.CELSIUS,
+    maxValue: this.maxHeatingValue,
+    minValue: 10,
+    minStep: 0.1,
+    perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+    });
     thermostatService
     .getCharacteristic(Characteristic.TemperatureDisplayUnits)
     .on('get', this.getTemperatureDisplayUnits.bind(this))
