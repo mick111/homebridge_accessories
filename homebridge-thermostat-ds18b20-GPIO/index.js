@@ -119,7 +119,8 @@ Thermostat.prototype = {
       self.temperature = value;
       // Update the Characteristic
       if (self.thermostatService) {
-        self.thermostatService.getCharacteristic(Characteristic.CurrentTemperature).setValue(value);
+        self.thermostatService.getCharacteristic(Characteristic.CurrentTemperature)
+        .setValue(value);
       }
     });
   },
@@ -130,7 +131,8 @@ Thermostat.prototype = {
     self.heatingCoolingState = (heatCommand == self.heatCommandValueIsHigh) ? Characteristic.TargetHeatingCoolingState.HEAT : Characteristic.TargetHeatingCoolingState.OFF;
     // Update the Characteristic
     if (self.thermostatService) {
-      self.thermostatService.getCharacteristic(Characteristic.CurrentHeatingCoolingState).setValue(self.heatingCoolingState);
+      self.thermostatService.getCharacteristic(Characteristic.CurrentHeatingCoolingState)
+      .setValue(self.heatingCoolingState);
     }
     setTimeout(self.updateHeatingCoolingState, self.heatingCoolingStatePooling, self);
   },
@@ -138,6 +140,13 @@ Thermostat.prototype = {
     // Force update the Characteristic
     self.thermostatService.getCharacteristic(Characteristic.TargetHeatingCoolingState)
     .setValue(self.targetHeatingCoolingState);
+  },
+  updateTargetTemperature:function(self) {
+    // Force update the Characteristic
+    if (self.thermostatService) {
+      self.thermostatService.getCharacteristic(Characteristic.TargetTemperature)
+      .setValue(self.targetTemperature);
+    }
   },
 
   // Write to GPIO accurate value for heating
@@ -152,8 +161,8 @@ Thermostat.prototype = {
       case Characteristic.TargetHeatingCoolingState.HEAT:
         // Special usage when the target state is COOL
         self.log("Force COOL/HEAT is not supported. Returning to last state.");
-        if (callback) { callback(); }
         self.updateTargetState(self);
+        if (callback) { callback(); }
         return;
       case Characteristic.TargetHeatingCoolingState.OFF:
         self.heatOnOff(Characteristic.TargetHeatingCoolingState.HEAT == self.targetHeatingCoolingState);
@@ -182,7 +191,7 @@ Thermostat.prototype = {
     callback(null, this.heatingCoolingState);
   },
   setCurrentHeatingCoolingState: function(value, callback) {
-    this.heatingCoolingState = Math.min(this.maxHeatingValue, value);
+    this.heatingCoolingState = value;
     callback(null);
   },
 
@@ -205,13 +214,13 @@ Thermostat.prototype = {
     callback(null, this.targetTemperature);
   },
   setTargetTemperature: function(value, callback) {
-    this.targetTemperature = value;
+    this.targetTemperature = Math.min(this.maxHeatingValue, value);
+    this.updateTargetTemperature(this)
     callback();
   },
 
   // Characteristic.TemperatureDisplayUnits
   getTemperatureDisplayUnits: function(callback) {
-
     callback(null, this.temperatureDisplayUnits);
   },
   setTemperatureDisplayUnits: function(value, callback) {
