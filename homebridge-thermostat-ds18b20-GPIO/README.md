@@ -15,18 +15,15 @@ Sample HomeBridge Configuration
             "port": 51826,
             "pin": "031-45-154"
         },
-
         "description": "",
-
         "accessories": [
             {
                 "accessory": "Thermostat-DS18B20-GPIO",
                 "name": "Thermostat Bedroom",
                 "DS18B20": "28-0000063f4ead",
-    		    "heatCommandPin": 14,
-    			"heatCommandValue": 1
+                "Heat_BCM_GPIO": 14,
+                "Heat_Command_Value": 1
             }
           ],
-
           "platforms": []
     }
