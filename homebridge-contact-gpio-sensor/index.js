@@ -102,34 +102,34 @@ function ContactGPIOSensor(log, config) {
       // If a change has been observed before scheduled self.processChange has been invoked
       // the scheduled self.processChange will be invalidated.
       self.lastCallerIdentifier = Date.now();
-      setTimeout(self.processChange, self.holdoffMS, self.lastCallerIdentifier);
+      setTimeout(self.processChange, self.holdoffMS, self, self.lastCallerIdentifier);
     });
 }
 
 // Process changes events
-ContactGPIOSensor.prototype.processChange = function(callerIdentifier) {
-    if (this.lastCallerIdentifier != callerIdentifier) {
+ContactGPIOSensor.prototype.processChange = function(self, callerIdentifier) {
+    if (self.lastCallerIdentifier != callerIdentifier) {
       // Ignore if it is not the last caller identifier
-      this.log("Ignoring because " + callerIdentifier + " is not the last caller identifier " + this.lastCallerIdentifier);
+      self.log("Ignoring because " + callerIdentifier + " is not the last caller identifier " + self.lastCallerIdentifier);
       return;
     }
 
     // Readback GPIO value
-    gpioValue = forceRead(this.retryCount, this.contactSensor);
-    if (gpioValue == this.currentGpioValue) {
+    gpioValue = forceRead(self.retryCount, self.contactSensor);
+    if (gpioValue == self.currentGpioValue) {
       // Ok, we consider that it was nothing
-      this.log("Ignoring because " + gpioValue + " does not differ from last value " + this.currentGpioValue);
+      self.log("Ignoring because " + gpioValue + " does not differ from last value " + self.currentGpioValue);
       return;
     }
 
     // Change! we have to inform the whole world
-    this.changesCounter++;
-    this.currentGpioValue = gpioValue;
-    this.log('Changes counter ' + this.changesCounter);
-    this.service.getCharacteristic(this.characteristic_times_opened)
-         .setValue(Math.floor(this.changesCounter/2));
-    this.service.getCharacteristic(Characteristic.ContactSensorState)
-         .setValue(translate(gpioValue, this.contactValue));
+    self.changesCounter++;
+    self.currentGpioValue = gpioValue;
+    self.log('Changes counter ' + self.changesCounter);
+    self.service.getCharacteristic(self.characteristic_times_opened)
+         .setValue(Math.floor(self.changesCounter/2));
+    self.service.getCharacteristic(Characteristic.ContactSensorState)
+         .setValue(translate(gpioValue, self.contactValue));
 };
 
 ContactGPIOSensor.prototype.getState = function(callback) {
