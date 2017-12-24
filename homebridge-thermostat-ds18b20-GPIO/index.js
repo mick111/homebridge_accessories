@@ -14,7 +14,7 @@
             "accessory": "Thermostat-DS18B20-GPIO",
             "name": "Thermostat Bedroom",
             "DS18B20": "28-0000063f4ead",
-            "heatCommandPin": 14,
+            "Heat_BCM_GPIO": 14,
             "heatCommandValue": 1
         }
       ],
@@ -48,7 +48,7 @@ function Thermostat(log, config) {
     this.ds18b20_device = config["DS18B20"];
 
     // Get Heat command configuration
-	var heatCommandPin = config["heatCommandPin"];
+	var heatCommandPin = config["Heat_BCM_GPIO"];
 	this.log("Heat Command Pin: " + heatCommandPin);
     if (heatCommandPin) {
         var heatCommandValue = config['heatCommandValue'];
