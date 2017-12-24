@@ -144,6 +144,7 @@ Thermostat.prototype = {
   updateTargetTemperature:function(self) {
     // Force update the Characteristic
     if (self.thermostatService) {
+      self.log("self.targetTemperature" + self.targetTemperature);
       self.thermostatService.getCharacteristic(Characteristic.TargetTemperature)
       .setValue(self.targetTemperature);
     }
@@ -214,7 +215,10 @@ Thermostat.prototype = {
     callback(null, this.targetTemperature);
   },
   setTargetTemperature: function(value, callback) {
+    this.log("this.maxHeatingValue" + this.maxHeatingValue);
+    this.log("value" + value);
     this.targetTemperature = Math.min(this.maxHeatingValue, value);
+    this.log("this.targetTemperature" + this.targetTemperature);
     this.updateTargetTemperature(this)
     callback();
   },
