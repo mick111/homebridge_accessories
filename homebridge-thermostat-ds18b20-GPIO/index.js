@@ -219,7 +219,6 @@ Thermostat.prototype = {
     this.log("value" + value);
     this.targetTemperature = Math.min(this.maxHeatingValue, value);
     this.log("this.targetTemperature" + this.targetTemperature);
-    this.updateTargetTemperature(this)
     callback();
   },
 
