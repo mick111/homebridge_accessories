@@ -103,14 +103,14 @@ function ContactGPIOSensor(log, config) {
       // the scheduled self.processChange will be invalidated.
       self.lastCallerIdentifier = Date.now();
       setTimeout(self.processChange, self.holdoffMS, self.lastCallerIdentifier);
-    }
+    });
 }
 
 // Process changes events
 ContactGPIOSensor.prototype.processChange = function(callerIdentifier) {
     if (this.lastCallerIdentifier != callerIdentifier) {
       // Ignore if it is not the last caller identifier
-      this.log("Ignoring because " + callerIdentifier + " is not the last caller identifier " + this.lastCallerIdentifier)
+      this.log("Ignoring because " + callerIdentifier + " is not the last caller identifier " + this.lastCallerIdentifier);
       return;
     }
 
