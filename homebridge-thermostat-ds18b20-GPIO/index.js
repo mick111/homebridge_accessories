@@ -15,7 +15,7 @@
             "name": "Thermostat Bedroom",
             "DS18B20": "28-0000063f4ead",
             "Heat_BCM_GPIO": 14,
-            "heatCommandValue": 1
+            "Heat_Command_Value": 1
         }
       ],
 
@@ -51,7 +51,7 @@ function Thermostat(log, config) {
 	var heatCommandPin = config["Heat_BCM_GPIO"];
 	this.log("Heat Command Pin: " + heatCommandPin);
     if (heatCommandPin) {
-        var heatCommandValue = config['heatCommandValue'];
+        var heatCommandValue = config["Heat_Command_Value"];
         this.log("Heat command value: " + heatCommandValue);
         this.heatCommandPort = new Gpio(heatCommandPin, 'out');
         this.heatCommandValueIsHigh = (heatCommandValue == 0) ? 0 : 1;
