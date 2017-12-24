@@ -102,6 +102,7 @@ function ContactGPIOSensor(log, config) {
       // If a change has been observed before scheduled self.processChange has been invoked
       // the scheduled self.processChange will be invalidated.
       self.lastCallerIdentifier = Date.now();
+      self.log("Change detected to " + value + " invoking in " + self.holdoffMS + "ms processChange with " + self.lastCallerIdentifier);
       setTimeout(self.processChange, self.holdoffMS, self, self.lastCallerIdentifier);
     });
 }
@@ -134,8 +135,9 @@ ContactGPIOSensor.prototype.processChange = function(self, callerIdentifier) {
 
 ContactGPIOSensor.prototype.getState = function(callback) {
   // Force reading state
-  var val = forceRead(this.retryCount, this.contactSensor);
-  callback(null, translate(val, this.contactValue));
+  this.currentGpioValue = forceRead(this.retryCount, this.contactSensor);
+  this.log("Get State requested, forceread returned " + this.currentGpioValue)
+  callback(null, translate(this.currentGpioValue, this.contactValue));
 };
 
 ContactGPIOSensor.prototype.getTimesOpened = function(callback) {
