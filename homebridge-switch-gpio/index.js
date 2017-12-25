@@ -54,7 +54,7 @@ function SwitchGPIO(log, config) {
 
 SwitchGPIO.prototype = {
   setGPIO: function(self, switchState){
-    self.onCommandPort.writeSync(self.onCommandValueIsHigh ^ (switchState ? 0 : 1));
+    self.gpio.writeSync(self.onCommandValueIsHigh ^ (switchState ? 0 : 1));
     self.switchService.getCharacteristic(Characteristic.On).setValue(switchState);
   },
   getSwitchState: function(callback) {
