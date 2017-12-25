@@ -52,12 +52,13 @@ function SwitchGPIO(log, config) {
   this.gpio.writeSync(this.onCommandValueIsHigh ? 0 : 1);
 }
 
+function setGPIO(self, switchState) {
+  console.log('setGPIO : self, switchState - ' + self + ' - ' + switchState);
+  self.gpio.writeSync(self.onCommandValueIsHigh ^ (switchState ? 0 : 1));
+  self.switchService.getCharacteristic(Characteristic.On).setValue(switchState);
+};
+
 SwitchGPIO.prototype = {
-  setGPIO: function(self, switchState) {
-    console.log('setGPIO : self, switchState - ' + self + ' - ' + switchState);
-    self.gpio.writeSync(self.onCommandValueIsHigh ^ (switchState ? 0 : 1));
-    self.switchService.getCharacteristic(Characteristic.On).setValue(switchState);
-  },
   getSwitchState: function(callback) {
     this.log("Get On State of port " + this.gpio);
     var onCommand = forceRead(this.retryCount, this.gpio);
@@ -68,7 +69,7 @@ SwitchGPIO.prototype = {
     this.setGPIO(powerOn);
     if (powerOn && (this.temporaryOn != undefined)) {
       var that = this;
-      setTimeout(that.setGPIO, that.temporaryOn, that, false);
+      setTimeout(setGPIO, that.temporaryOn, that, false);
     }
     callback();
   },
