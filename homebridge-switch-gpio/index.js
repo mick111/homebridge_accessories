@@ -66,7 +66,9 @@ SwitchGPIO.prototype = {
     // Command update
     this.setGPIO(powerOn);
     if (powerOn && this.temporaryOn != undefined) {
-      setTimeout(this.setGPIO, this.temporaryOn, this, false);
+      setTimeout(function() {
+          this.setGPIO(this, false);
+      }, this.setGPIO, this.temporaryOn);
     }
     callback();
   },
