@@ -1,0 +1,33 @@
+{
+    "name": "homebridge-switch-gpio",
+    "version": "1.0.0",
+    "description": "Homebridge Plugin switches acted by GPIO",
+    "main": "index.js",
+    "devDependencies": {},
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/lucavb/homebridge-contact-gpio-sensor.git"
+    },
+    "keywords": [
+        "homebridge",
+        "gpio",
+        "switches",
+        "homebridge-plugin"
+    ],
+    "author": "Michael Mouchous",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/mick111/homebridge-accessories/issues"
+    },
+    "homepage": "https://github.com/mick111/homebridge-accessories#readme",
+    "dependencies" : {
+        "onoff" : "1.1.0"
+    },
+    "engines" : {
+        "node": ">=0.12.0",
+        "homebridge": ">=0.2.0"
+    }
+}
