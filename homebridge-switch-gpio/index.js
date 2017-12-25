@@ -49,7 +49,7 @@ function SwitchGPIO(log, config) {
 
   this.gpio = new Gpio(this.pinId, this.onCommandValueIsHigh ? 'low' : 'high');
   // Turn switch off
-  this.gpio.writeSync(this.onCommandValueIsHigh ? 0 : 1);
+  this.setGPIO(false);
 }
 
 SwitchGPIO.prototype = {
