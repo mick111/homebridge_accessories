@@ -54,6 +54,7 @@ function SwitchGPIO(log, config) {
 
 SwitchGPIO.prototype = {
   setGPIO: function(self, switchState){
+    console.log('setGPIO : self, switchState' + self + switchState);
     self.gpio.writeSync(self.onCommandValueIsHigh ^ (switchState ? 0 : 1));
     self.switchService.getCharacteristic(Characteristic.On).setValue(switchState);
   },
@@ -66,9 +67,7 @@ SwitchGPIO.prototype = {
     // Command update
     this.setGPIO(powerOn);
     if (powerOn && this.temporaryOn != undefined) {
-      setTimeout(function() {
-          this.setGPIO(this, false);
-      }, this.setGPIO, this.temporaryOn);
+      setTimeout(this.setGPIO, this.temporaryOn, this, false);
     }
     callback();
   },
