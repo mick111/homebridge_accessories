@@ -53,8 +53,8 @@ function SwitchGPIO(log, config) {
 }
 
 SwitchGPIO.prototype = {
-  setGPIO: function(self, switchState) {
-    self.gpio.writeSync(self.onCommandValueIsHigh ^ (switchState ? 0 : 1));
+  setGPIO: function(switchState) {
+    this.gpio.writeSync(this.onCommandValueIsHigh ^ (switchState ? 0 : 1));
   },
   getSwitchState: function(callback) {
     this.log("Get On State of port " + this.gpio);
@@ -63,15 +63,10 @@ SwitchGPIO.prototype = {
   },
   setSwitchState: function(powerOn, callback) {
     // Command update
-    this.setGPIO(this, powerOn);
+    this.setGPIO(powerOn);
     if (powerOn && (this.temporaryOn != undefined)) {
-      var that = this;
-      setTimeout(
-      function() {
-        that.switchService.getCharacteristic(Characteristic.On).setValue(false)
-      },
-      that.temporaryOn);
-      //setTimeout(that.setGPIO, that.temporaryOn, that, false);
+      var c = that.switchService.getCharacteristic(Characteristic.On);
+      setTimeout(c.setValue.bind(c, false), this.temporaryOn);
     }
     callback();
   },
