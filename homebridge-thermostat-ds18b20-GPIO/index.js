@@ -16,7 +16,9 @@
             "DS18B20": "28-0000063f4ead",
             "Heat_BCM_GPIO": 14,
             "Heat_Command_Value": 1,
-            "maxHeatingValue": 23
+            "maxHeatingValue": 23,
+            "removeForceHeating": true,
+            "removeForceCooling": true
         }
       ],
 
@@ -54,6 +56,9 @@ function Thermostat(log, config) {
   } else {
     this.maxHeatingValue = 30;
   }
+
+  this.removeForceHeating = config.removeForceHeating;
+  this.removeForceCooling = config.removeForceCooling;
 
   // Get Heat command configuration
   var heatCommandPin = config["Heat_BCM_GPIO"];
@@ -160,11 +165,6 @@ Thermostat.prototype = {
     switch (self.targetHeatingCoolingState) {
       case Characteristic.TargetHeatingCoolingState.COOL:
       case Characteristic.TargetHeatingCoolingState.HEAT:
-        // Special usage when the target state is COOL
-        self.log("Force COOL/HEAT is not supported. Returning to last state.");
-        self.updateTargetState(self);
-        if (callback) { callback(); }
-        return;
       case Characteristic.TargetHeatingCoolingState.OFF:
         self.heatOnOff(Characteristic.TargetHeatingCoolingState.HEAT == self.targetHeatingCoolingState);
         break;
@@ -242,32 +242,44 @@ Thermostat.prototype = {
     .getCharacteristic(Characteristic.CurrentHeatingCoolingState)
     .on('get', this.getCurrentHeatingCoolingState.bind(this))
     .on('set', this.setCurrentHeatingCoolingState.bind(this));
+
+    var valValues = [
+      Characteristic.TargetHeatingCoolingState.OFF,
+      Characteristic.TargetHeatingCoolingState.HEAT,
+      Characteristic.TargetHeatingCoolingState.COOL,
+      Characteristic.TargetHeatingCoolingState.AUTO];
+    if (this.removeForceCooling == true) {
+      valValues.splice(2, 1);
+    }
+    if (this.removeForceHeating == true) {
+      valValues.splice(1, 1);
+    }
     thermostatService
-    .getCharacteristic(Characteristic.TargetHeatingCoolingState)
-    .on('get', this.getTargetHeatingCoolingState.bind(this))
-    .on('set', this.setTargetHeatingCoolingState.bind(this))
-    .setProps({
-    format: Characteristic.Formats.UINT8,
-    maxValue: 3,
-    minValue: 0,
-    validValues: [0,3],
-    perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
-    });
+      .getCharacteristic(Characteristic.TargetHeatingCoolingState)
+      .on('get', this.getTargetHeatingCoolingState.bind(this))
+      .on('set', this.setTargetHeatingCoolingState.bind(this))
+      .setProps({
+        format: Characteristic.Formats.UINT8,
+        maxValue: 3,
+        minValue: 0,
+        validValues: valValues,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+      });
     thermostatService
-    .getCharacteristic(Characteristic.CurrentTemperature)
-    .on('get', this.getCurrentTemperature.bind(this));
-    thermostatService
-    .getCharacteristic(Characteristic.TargetTemperature)
-    .on('get', this.getTargetTemperature.bind(this))
-    .on('set', this.setTargetTemperature.bind(this))
-    .setProps({
-    format: Characteristic.Formats.FLOAT,
-    unit: Characteristic.Units.CELSIUS,
-    maxValue: this.maxHeatingValue,
-    minValue: 10,
-    minStep: 0.1,
-    perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
-    });
+      .getCharacteristic(Characteristic.CurrentTemperature)
+      .on('get', this.getCurrentTemperature.bind(this));
+      thermostatService
+      .getCharacteristic(Characteristic.TargetTemperature)
+      .on('get', this.getTargetTemperature.bind(this))
+      .on('set', this.setTargetTemperature.bind(this))
+      .setProps({
+        format: Characteristic.Formats.FLOAT,
+        unit: Characteristic.Units.CELSIUS,
+        maxValue: this.maxHeatingValue,
+        minValue: 10,
+        minStep: 0.1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+      });
     thermostatService
     .getCharacteristic(Characteristic.TemperatureDisplayUnits)
     .on('get', this.getTemperatureDisplayUnits.bind(this))
