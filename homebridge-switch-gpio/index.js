@@ -59,7 +59,7 @@ SwitchGPIO.prototype = {
   },
   getSwitchState: function(callback) {
     this.log("Get On State of port " + this.onCommandPort);
-    var onCommand = forceRead(retryCount, this.onCommandPort);
+    var onCommand = forceRead(this.retryCount, this.onCommandPort);
     callback(null, onCommand == this.onCommandValueIsHigh);
   },
   setSwitchState: function(powerOn, callback) {
