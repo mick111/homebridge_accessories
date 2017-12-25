@@ -58,8 +58,8 @@ SwitchGPIO.prototype = {
     self.switchService.getCharacteristic(Characteristic.On).setValue(switchState);
   },
   getSwitchState: function(callback) {
-    this.log("Get On State of port " + this.onCommandPort);
-    var onCommand = forceRead(this.retryCount, this.onCommandPort);
+    this.log("Get On State of port " + this.gpio);
+    var onCommand = forceRead(this.retryCount, this.gpio);
     callback(null, onCommand == this.onCommandValueIsHigh);
   },
   setSwitchState: function(powerOn, callback) {
