@@ -1,7 +1,7 @@
 /*
   {
-    "accessory": "LampGPIO",
-    "name": "Lampe Cuisine",
+    "accessory": "SwitchGPIO",
+    "name": "Interrupteur",
     "retryCount": 10,
     "temporaryOnTimeMS": 2000,
     "onCommandValue": 1,
@@ -82,11 +82,11 @@ SwitchGPIO.prototype = {
       .setCharacteristic(Characteristic.Model, "MM Model")
       .setCharacteristic(Characteristic.SerialNumber, "MM SN");
 
-    self.switchService = new Service.Switch(this.name);
-    self.switchService
+    this.switchService = new Service.Switch(this.name);
+    this.switchService
         .getCharacteristic(Characteristic.On)
         .on('get', this.getSwitchState.bind(this))
         .on('set', this.setSwitchState.bind(this));
-    return [informationService, self.switchService];
+    return [informationService, this.switchService];
   }
 };
