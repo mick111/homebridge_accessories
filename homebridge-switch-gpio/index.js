@@ -65,7 +65,7 @@ SwitchGPIO.prototype = {
     // Command update
     this.setGPIO(powerOn);
     if (powerOn && (this.temporaryOn != undefined)) {
-      var c = that.switchService.getCharacteristic(Characteristic.On);
+      var c = this.switchService.getCharacteristic(Characteristic.On);
       setTimeout(c.setValue.bind(c, false), this.temporaryOn);
     }
     callback();
