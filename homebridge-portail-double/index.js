@@ -260,13 +260,13 @@ PortailDouble.prototype = {
         .on('get', this.getTargetDoorState.bind(this))
         .on('set', this.setTargetDoorState.bind(this));
 
-    this.GrandeOuverture_SwitchService = new Service.Switch("Grande Ouverture");
+    this.GrandeOuverture_SwitchService = new Service.Switch("Grande Ouverture","button1");
     this.GrandeOuverture_SwitchService
         .getCharacteristic(Characteristic.On)
         .on('get', this.getGrandeOuverture_SwitchState.bind(this))
         .on('set', this.setGrandeOuverture_SwitchState.bind(this));
 
-    this.OuverturePieton_SwitchService = new Service.Switch("Ouverture Piéton");
+    this.OuverturePieton_SwitchService = new Service.Switch("Ouverture Piéton","button2");
     this.OuverturePieton_SwitchService
         .getCharacteristic(Characteristic.On)
         .on('get', this.getOuverturePieton_SwitchState.bind(this))
