@@ -171,10 +171,10 @@ SwitchGPIO.prototype = {
     callback();
   },
 
-  Contact_updateValue = function() {
+  Contact_updateValue: function() {
     this.Contact_currentGpioValue = this.forceRead(this.Contact_gpio);
   },
-  Contact_processGPIOWatch = function(callerIdentifier) {
+  Contact_processGPIOWatch:function(callerIdentifier) {
       if (this.Contact_lastCallerIdentifier != callerIdentifier) {
         // Ignore if it is not the last caller identifier
         this.log("Ignoring because " + callerIdentifier + " is not the last caller identifier " + this.Contact_lastCallerIdentifier);
