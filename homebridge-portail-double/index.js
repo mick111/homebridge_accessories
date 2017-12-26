@@ -104,7 +104,7 @@ function PortailDouble(log, config) {
   process.on('SIGINT', this.unexportAll.bind(this));
 }
 
-SwitchGPIO.prototype = {
+PortailDouble.prototype = {
   unexportAll: function () {
       this.Contact_gpio.unexport();
       this.GrandeOuverture_gpio.unexport();
