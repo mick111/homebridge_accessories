@@ -268,6 +268,23 @@ PortailDouble.prototype = {
         .on('get', this.getTargetDoorState.bind(this))
         .on('set', this.setTargetDoorState.bind(this));
 
+    // To count the number of times the garage door has been opened
+    var TimesOpened = function () {
+        Characteristic.call(this, 'Times Opened', 'E863F129-079E-48FF-8F27-9C2605A29F52');
+        this.setProps({
+                      format: Characteristic.Formats.UINT8,
+                      minValue: 0,
+                      minStep: 1,
+                      perms: [Characteristic.Perms.READ, Characteristic.Perms.NOTIFY]
+                      });
+        this.value = this.getDefaultValue();
+    };
+    inherits(TimesOpened, Characteristic);
+    TimesOpened.UUID = 'E863F129-079E-48FF-8F27-9C2605A29F52';
+    this.GarageDoorOpenerService.addOptionalCharacteristic(TimesOpened);
+    this.GarageDoorOpenerService.getCharacteristic(TimesOpened)
+      .on('get', (function(callback) { return callback(null, Math.floor(this.Contact_changesCounter/2)); }).bind(this));
+
     this.GrandeOuverture_SwitchService = new Service.Switch("Grande Ouverture","button1");
     this.GrandeOuverture_SwitchService
         .getCharacteristic(Characteristic.On)
@@ -279,9 +296,11 @@ PortailDouble.prototype = {
         .getCharacteristic(Characteristic.On)
         .on('get', this.getOuverturePieton_SwitchState.bind(this))
         .on('set', this.setOuverturePieton_SwitchState.bind(this));
-    return [informationService,
+    return [
+      informationService,
       this.GrandeOuverture_SwitchService,
       this.OuverturePieton_SwitchService,
-      this.GarageDoorOpenerService];
+      this.GarageDoorOpenerService
+    ];
   }
 };
