@@ -164,17 +164,21 @@ PortailDouble.prototype = {
     callback(null, onCommand == this.OuverturePieton_onCommandValueIsHigh);
   },
   setOuverturePieton_SwitchState: function(powerOn, callback) {
+    // If the Portail is currently closed; program to press the button again after a certain time
+    if (powerOn && (this.OuverturePieton_autoCloseS != undefined)) {
+      this.Contact_updateValue();
+      if (this.currentDoorState() == Characteristic.CurrentDoorState.CLOSED) {
+        var additionalTime = (this.OuverturePieton_temporaryOnTimeMS != undefined) ? this.OuverturePieton_temporaryOnTimeMS : 0;
+        var c = this.OuverturePieton_SwitchService.getCharacteristic(Characteristic.On);
+        setTimeout(c.setValue.bind(c, true), additionalTime + this.OuverturePieton_autoCloseS * 1000);
+      }
+    }
+
     // Command update
     this.setOuverturePieton_GPIO(powerOn);
     if (powerOn && (this.OuverturePieton_temporaryOnTimeMS != undefined)) {
       var c = this.OuverturePieton_SwitchService.getCharacteristic(Characteristic.On);
       setTimeout(c.setValue.bind(c, false), this.OuverturePieton_temporaryOnTimeMS);
-    }
-
-    if (powerOn && (this.OuverturePieton_autoCloseS!= undefined)) {
-      var c = this.OuverturePieton_SwitchService.getCharacteristic(Characteristic.On);
-      var additionalTime = (this.OuverturePieton_temporaryOnTimeMS != undefined) ? this.OuverturePieton_temporaryOnTimeMS : 0;
-      setTimeout(c.setValue.bind(c, false), additionalTime + this.OuverturePieton_autoCloseS * 1000);
     }
     callback();
   },
