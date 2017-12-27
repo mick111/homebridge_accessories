@@ -203,6 +203,11 @@ PortailDouble.prototype = {
       this.log('Changes counter ' + this.Contact_changesCounter);
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState)
         .setValue(this.currentDoorState());
+
+      this.GarageDoor_targetDoorRequest =
+        (this.currentDoorState() == Characteristic.CurrentDoorState.CLOSED) ?
+        Characteristic.TargetDoorState.OPEN :
+        Characteristic.TargetDoorState.CLOSED;
   },
 
   // Characteristic.CurrentDoorState.OPEN = 0;
@@ -219,10 +224,10 @@ PortailDouble.prototype = {
   // Characteristic.TargetDoorState.OPEN = 0;
   // Characteristic.TargetDoorState.CLOSED = 1;
   setTargetDoorState: function(targetState, callback) {
-    // Update the current GPIO value
+    // Update the current GPIO value of contact
     this.Contact_updateValue();
-
-    if ((this.toCurrentDoorState() == Characteristic.CurrentDoorState.OPEN) &&
+    // If the Portail is opened; close it with the big opening button
+    if ((this.currentDoorState() == Characteristic.CurrentDoorState.OPEN) &&
         (targetState == Characteristic.TargetDoorState.CLOSED)) {
       this.GrandeOuverture_SwitchService.getCharacteristic(Characteristic.On)
         .setValue(true);
