@@ -11,6 +11,7 @@
     "OuverturePieton_BCM_GPIO": 3,
     "OuverturePieton_temporaryOnTimeMS": 2000,
     "OuverturePieton_onCommandValue": 1,
+    "OuverturePieton_autoCloseS": 120,
 
     "Contact_BCM_GPIO": 20,
     "Contact_holdoffMS" : 1000,
@@ -54,6 +55,7 @@ function PortailDouble(log, config) {
   this.OuverturePieton_BCM_GPIO = config.OuverturePieton_BCM_GPIO;
   this.OuverturePieton_temporaryOnTimeMS = config.OuverturePieton_temporaryOnTimeMS;
   this.OuverturePieton_onCommandValue = config.OuverturePieton_onCommandValue;
+  this.OuverturePieton_autoCloseS = config.OuverturePieton_autoCloseS;
 
   this.Contact_BCM_GPIO = config.Contact_BCM_GPIO;
   if (typeof config.Contact_holdoffMS == 'number') {
@@ -167,6 +169,12 @@ PortailDouble.prototype = {
     if (powerOn && (this.OuverturePieton_temporaryOnTimeMS != undefined)) {
       var c = this.OuverturePieton_SwitchService.getCharacteristic(Characteristic.On);
       setTimeout(c.setValue.bind(c, false), this.OuverturePieton_temporaryOnTimeMS);
+    }
+
+    if (powerOn && (this.OuverturePieton_autoCloseS!= undefined)) {
+      var c = this.OuverturePieton_SwitchService.getCharacteristic(Characteristic.On);
+      var additionalTime = (this.OuverturePieton_temporaryOnTimeMS != undefined) ? this.OuverturePieton_temporaryOnTimeMS : 0;
+      setTimeout(c.setValue.bind(c, false), additionalTime + this.OuverturePieton_autoCloseS * 1000);
     }
     callback();
   },
