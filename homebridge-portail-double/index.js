@@ -212,6 +212,8 @@ PortailDouble.prototype = {
         (this.currentDoorState() == Characteristic.CurrentDoorState.CLOSED) ?
         Characteristic.TargetDoorState.OPEN :
         Characteristic.TargetDoorState.CLOSED;
+      this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState)
+        .setValue(this.GarageDoor_targetDoorRequest);
   },
 
   // Characteristic.CurrentDoorState.OPEN = 0;
