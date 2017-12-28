@@ -53,7 +53,7 @@ LicensePlatesDetector.prototype = {
         // Get the license plate value
         var licenseplate = this.licenseplates[i];
         var value =
-          (stdout.indexOf(substr) > -1) ?
+          (stdout.indexOf(licenseplate) > -1) ?
           Characteristic.OccupancyDetected.OCCUPANCY_DETECTED :
           Characteristic.OccupancyDetected.OCCUPANCY_NOT_DETECTED;
         this.licensePlateDetected[licenseplate] = value;
