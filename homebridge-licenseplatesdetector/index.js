@@ -62,7 +62,7 @@ LicensePlatesDetector.prototype = {
           .setValue(value);
         }
       }).bind(this));
-    setTimeout(updateLicensePlatesDetection.bind(this), this.poolTimingMS);
+    setTimeout(this.updateLicensePlatesDetection.bind(this), this.poolTimingMS);
   },
   getOccupancyDetected: function(callback) {
     self = this[0];
