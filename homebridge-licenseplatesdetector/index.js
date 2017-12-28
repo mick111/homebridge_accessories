@@ -80,7 +80,7 @@ LicensePlatesDetector.prototype = {
     this.OccupancySensorServices = {};
     for (i in this.licenseplates) {
       var licenseplate = this.licenseplates[i];
-      var service = new Service.OccupancySensor(licenseplate);
+      var service = new Service.OccupancySensor(licenseplate,licenseplate);
       this.OccupancySensorServices[licenseplate] = service;
 
       // Required Characteristics
