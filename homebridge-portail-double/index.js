@@ -210,15 +210,15 @@ PortailDouble.prototype = {
 
       this.GarageDoor_targetDoorRequest =
         (this.currentDoorState() == Characteristic.CurrentDoorState.CLOSED) ?
-        Characteristic.TargetDoorState.OPEN :
-        Characteristic.TargetDoorState.CLOSED;
-      // this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState)
-      //   .setValue(this.GarageDoor_targetDoorRequest);
+        Characteristic.TargetDoorState.CLOSED :
+        Characteristic.TargetDoorState.OPEN;
+      this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState)
+        .setValue(this.GarageDoor_targetDoorRequest);
   },
 
   // Characteristic.CurrentDoorState.OPEN = 0;
   // Characteristic.CurrentDoorState.CLOSED = 1;
-  // Characteristic.CurrentDoorState.OPENING = 2;
+  // Characteristisc.CurrentDoorState.OPENING = 2;
   // Characteristic.CurrentDoorState.CLOSING = 3;
   // Characteristic.CurrentDoorState.STOPPED = 4;
   getCurrentDoorState: function(callback) {
