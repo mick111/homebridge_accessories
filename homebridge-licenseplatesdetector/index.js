@@ -77,10 +77,11 @@ LicensePlatesDetector.prototype = {
       .setCharacteristic(Characteristic.SerialNumber, "MM SN");
 
     var services = [informationService];
+    this.OccupancySensorServices = {};
     for (i in this.licenseplates) {
       var licenseplate = this.licenseplates[i];
       var service = new Service.OccupancySensor(licenseplate);
-      this.OccupancySensorService[licenseplate] = service;
+      this.OccupancySensorServices[licenseplate] = service;
 
       // Required Characteristics
           // Characteristic.OccupancyDetected : [READ]
