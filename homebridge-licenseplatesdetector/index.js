@@ -60,6 +60,7 @@ LicensePlatesDetector.prototype = {
         this.OccupancySensorServices[licenseplate]
           .getCharacteristic(Characteristic.OccupancyDetected)
           .setValue(value);
+        }
       }).bind(this));
     setTimeout(updateLicensePlatesDetection.bind(this), this.poolTimingMS);
   },
