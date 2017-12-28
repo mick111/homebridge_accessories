@@ -36,6 +36,7 @@ function LicensePlatesDetector(log, config) {
   this.command = config.command;
   this.poolTimingMS = config.poolTimingMS || POOLTIME_MS;
   this.licenseplates = config.licenseplates || [];
+  this.licensePlateDetected = {};
 
   this.updateLicensePlatesDetection();
 }
