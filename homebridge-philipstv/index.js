@@ -91,9 +91,10 @@ PhilipsTV.prototype = {
     homebridge_callback();
   },
   setVolumeHandler: function(path, method, json, homebridge_callback) {
+    this.log("setVolumeHandler");
     homebridge_callback();
   },
-  makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback) {
+  makeRequest: function(path, method, postData, authorizationHeader, handler, tries, homebridge_callback) {
     var options = this.optionsBase;
     options['path'] = path;
     options['method'] = method;
@@ -111,13 +112,8 @@ PhilipsTV.prototype = {
       // End of request listener
       response.on('end', (function () {
         // A status code of 200 indicates that the response is OK
-        if (response.statusCode == 200 && callback != undefined) {
-          if (str == '') {
-            callback.bind(this, path, method, undefined, homebridge_callback);
-          } else {
-            json = JSON.parse(str);
-            callback.bind(this, path, method, json, homebridge_callback);
-          }
+        if (response.statusCode == 200 && handler != undefined) {
+          handler(path, method, (str == '') ? undefined : JSON.parse(str), homebridge_callback);
         }
         str = '';
       }).bind(this));
@@ -128,16 +124,16 @@ PhilipsTV.prototype = {
         var authenticator = this.on_www_authenticate(response.headers['www-authenticate']);
         var authorizationHeader = authenticator.authorize(method, path)
         response.resume();
-        this.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback);
+        this.makeRequest(path, method, postData, authorizationHeader, handler, tries, homebridge_callback);
       }
     }).bind(this));
 
     // Add Authorization Header if provided
     if (authorizationHeader != undefined) {
-      //this.log('Adding Authorization Header to request:', authorizationHeader);
       request.setHeader('Authorization', authorizationHeader);
     }
 
+    // Add data to POST request if provided
     if (postData != undefined) {
       request.write(postData);
     }
@@ -149,7 +145,7 @@ PhilipsTV.prototype = {
 
       if (tries > 0 && (e.code == 'ECONNREFUSED' || e.code == 'EHOSTDOWN')) {
         this.log("Programming to reiter request in 1 second");
-        setTimeout(this.makeRequest.bind(this, path, method, postData, authorizationHeader, callback, tries-1, homebridge_callback), 1000);
+        setTimeout(this.makeRequest.bind(this, path, method, postData, authorizationHeader, handler, tries-1, homebridge_callback), 1000);
       }
     }).bind(this));
 
@@ -207,11 +203,6 @@ PhilipsTV.prototype = {
     this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler.bind(this), 10, callback);
   },
   setVolume: function(value, callback) {
-    if (value > 90) {
-      callback();
-      return;
-    }
-    if (value > 60) { value = 60; }
     this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler.bind(this), 10, callback);
   },
   identify: function(callback) {
