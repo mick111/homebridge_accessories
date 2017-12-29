@@ -16,6 +16,7 @@
             "DS18B20": "28-0000063f4ead",
             "Heat_BCM_GPIO": 14,
             "Heat_Command_Value": 1,
+            "minHeatingValue": 15,
             "maxHeatingValue": 23,
             "removeForceHeating": true,
             "removeForceCooling": true
@@ -48,6 +49,14 @@ function Thermostat(log, config) {
 
   // Get thermometer sensor configuration
   this.ds18b20_device = config["DS18B20"];
+
+  // Minimum heating value
+  var minHeatingValue = config["minHeatingValue"];
+  if (minHeatingValue) {
+    this.minHeatingValue = minHeatingValue;
+  } else {
+    this.minHeatingValue = 10;
+  }
 
   // Maximum heating value
   var maxHeatingValue = config["maxHeatingValue"];
@@ -276,7 +285,7 @@ Thermostat.prototype = {
         format: Characteristic.Formats.FLOAT,
         unit: Characteristic.Units.CELSIUS,
         maxValue: this.maxHeatingValue,
-        minValue: 10,
+        minValue: this.minHeatingValue,
         minStep: 0.1,
         perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
       });
