@@ -60,69 +60,67 @@ function PhilipsTV(log, config) {
 
 
 PhilipsTV.prototype = {
-  turnOnIfNeeded: function(self, path, method, json, homebridge_callback) {
+  turnOnIfNeeded: function(path, method, json, homebridge_callback) {
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'Standby') {
-      self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
+      this.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
     }
     homebridge_callback();
   },
-  turnOffIfNeeded: function(self, path, method, json, homebridge_callback) {
+  turnOffIfNeeded: function(path, method, json, homebridge_callback) {
     if (path=='/6/powerstate' && method == 'GET' && json != undefined && json.powerstate == 'On') {
-      self.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
+      this.makeRequest('/6/input/key', 'POST', "{ \"key\"  : \"Standby\" }");
     }
     homebridge_callback();
   },
-  getVolumeHandler: function(self, path, method, json, homebridge_callback) {
+  getVolumeHandler: function(path, method, json, homebridge_callback) {
     if (path=='/6/audio/volume' && method == 'GET' && json != undefined) {
       homebridge_callback(null, json.current);
     }
   },
-  powerstateHandler: function(self, path, method, json, homebridge_callback) {
+  powerstateHandler: function(path, method, json, homebridge_callback) {
     if (path=='/6/powerstate' && method == 'GET' && json != undefined) {
       homebridge_callback(null, json.powerstate == 'On');
     }
   },
-  ambilightcurrentconfigurationHandler: function(self, path, method, json, homebridge_callback) {
+  ambilightcurrentconfigurationHandler: function(path, method, json, homebridge_callback) {
     if (path=='/6/ambilight/currentconfiguration' && method == 'GET' && json != undefined) {
-      homebridge_callback(null, json.styleName == "OFF" ? Characteristic.SwingMode.SWING_DISABLED : Characteristic.SwingMode.SWING_ENABLED);
+      homebridge_callback(null, json.styleName == "OFF");
     }
   },
-  setAmbilightcurrentconfigurationHandler: function(self, path, method, json, homebridge_callback) {
+  setAmbilightcurrentconfigurationHandler: function(path, method, json, homebridge_callback) {
     homebridge_callback();
   },
-  setVolumeHandler: function(self, path, method, json, homebridge_callback) {
+  setVolumeHandler: function(path, method, json, homebridge_callback) {
     homebridge_callback();
   },
-  makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self) {
-    if (self == undefined) { self = this; }
-    var options = self.optionsBase;
+  makeRequest: function(path, method, postData, authorizationHeader, callback, tries, homebridge_callback) {
+    var options = this.optionsBase;
     options['path'] = path;
     options['method'] = method;
 
     //this.log('Constructing request', method, path, ((tries == undefined) ? "" : "("+tries+")"));
-    request = https.request(options, (response) => {
+    request = https.request(options, (function(response) {
       // Status code of response
-      //self.log('Status Code:', response.statusCode);
+      //this.log('Status Code:', response.statusCode);
 
       // Variable to concatenate chunks of received data
       var str = '';
 
       // Chunk of data listener
       response.on('data', function (chunk) { str += chunk; });
-
       // End of request listener
-      response.on('end', function () {
+      response.on('end', (function () {
         // A status code of 200 indicates that the response is OK
         if (response.statusCode == 200 && callback != undefined) {
           if (str == '') {
-            callback(self, path, method, undefined, homebridge_callback);
+            callback.bind(this, path, method, undefined, homebridge_callback);
           } else {
             json = JSON.parse(str);
-            callback(self, path, method, json, homebridge_callback);
+            callback.bind(this, path, method, json, homebridge_callback);
           }
         }
         str = '';
-      });
+      }).bind(this));
 
 
       // If Status Code is 401, we have to reperform the request with correct headers
@@ -130,9 +128,9 @@ PhilipsTV.prototype = {
         var authenticator = this.on_www_authenticate(response.headers['www-authenticate']);
         var authorizationHeader = authenticator.authorize(method, path)
         response.resume();
-        self.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self);
+        this.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback);
       }
-    });
+    }).bind(this));
 
     // Add Authorization Header if provided
     if (authorizationHeader != undefined) {
@@ -145,35 +143,35 @@ PhilipsTV.prototype = {
     }
 
     // Configuration of error
-    request.on('error', (e) => {
-      self.log('Error:', e.code);
-      wol.wake(self.macAddress);
+    request.on('error', (function(e) {
+      this.log('Error:', e.code);
+      wol.wake(this.macAddress);
 
       if (tries > 0 && (e.code == 'ECONNREFUSED' || e.code == 'EHOSTDOWN')) {
-        self.log("Programming to reiter request in 1 second");
-        setTimeout(self.makeRequest, 1000, path, method, postData, authorizationHeader, callback, tries-1, homebridge_callback, self);
+        this.log("Programming to reiter request in 1 second");
+        setTimeout(this.makeRequest.bind(this, path, method, postData, authorizationHeader, callback, tries-1, homebridge_callback), 1000);
       }
-    });
+    }).bind(this));
 
     request.setTimeout(1000);
-    request.on('timeout', () => {
-      self.log('Request timeout, waking device');
-      wol.wake(self.macAddress);
-    });
+    request.on('timeout', (function () {
+      this.log('Request timeout, waking device ' + this.macAddress);
+      wol.wake(this.macAddress);
+    }).bind(this));
 
     //this.log('Calling end():', request);
     wol.wake(this.macAddress);
     request.end();
   },
-  getPowerState: function(callback) {
+  getMute: function(callback) {
     this.log("Get powerstate");
-    this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
+    this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler.bind(this), 10, callback);
   },
-  setPowerState: function(powerOn, callback) {
+  setMute: function(powerOn, callback) {
     if (powerOn) {
-      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
+      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded.bind(this), 10, callback);
     } else {
-      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOffIfNeeded, 10, callback, this);
+      this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded.bind(this), 10, callback);
     }
   },
   // getRotationDirection: function(callback) {
@@ -193,20 +191,20 @@ PhilipsTV.prototype = {
   // },
   getSwingMode: function(callback) {
     this.log("Get ambilight currentconfiguration");
-    this.makeRequest('/6/ambilight/currentconfiguration', 'GET', undefined, undefined, this.ambilightcurrentconfigurationHandler, 10, callback, this);
+    this.makeRequest('/6/ambilight/currentconfiguration', 'GET', undefined, undefined, this.ambilightcurrentconfigurationHandler.bind(this), 10, callback);
   },
   setSwingMode: function(mode, callback) {
     if (Characteristic.SwingMode.SWING_DISABLED == mode) {
-      this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"OFF","isExpert":false}), undefined, this.setAmbilightcurrentconfigurationHandler, 10, callback, this);
+      this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"OFF","isExpert":false}), undefined, this.setAmbilightcurrentconfigurationHandler.bind(this), 10, callback);
     } else if (Characteristic.SwingMode.SWING_ENABLED == mode) {
-      this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"FOLLOW_VIDEO","isExpert":false,"menuSetting":"STANDARD"}), undefined, this.setAmbilightcurrentconfigurationHandler, 10, callback, this);
+      this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"FOLLOW_VIDEO","isExpert":false,"menuSetting":"STANDARD"}), undefined, this.setAmbilightcurrentconfigurationHandler.bind(this), 10, callback);
     } else {
       callback();
     }
   },
   getVolume: function(callback) {
     this.log("Get Volume");
-    this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler, 10, callback, this);
+    this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler.bind(this), 10, callback);
   },
   setVolume: function(value, callback) {
     if (value > 90) {
@@ -214,7 +212,7 @@ PhilipsTV.prototype = {
       return;
     }
     if (value > 60) { value = 60; }
-    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler, 10, callback, this);
+    this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler.bind(this), 10, callback);
   },
   identify: function(callback) {
     this.log("Identify requested!");
@@ -236,6 +234,16 @@ PhilipsTV.prototype = {
       .addCharacteristic(Characteristic.Volume)
       .on('get', this.getVolume.bind(this))
       .on('set', this.setVolume.bind(this));
+    service
+      .getCharacteristic(Characteristic.Volume)
+      .setProps({
+        format: Characteristic.Formats.UINT8,
+        unit: Characteristic.Units.PERCENTAGE,
+        maxValue: 60,
+        minValue: 1,
+        minStep: 1,
+        perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+      });
     // this.service
     //   .addCharacteristic(Characteristic.RotationDirection)
     //   .on('get', this.getRotationDirection.bind(this))
