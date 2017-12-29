@@ -228,8 +228,8 @@ PhilipsTV.prototype = {
     service = new Service.Speaker(this.name);
     service
       .getCharacteristic(Characteristic.Mute)
-      .on('get', this.getPowerState.bind(this))
-      .on('set', this.setPowerState.bind(this));
+      .on('get', this.getMute.bind(this))
+      .on('set', this.setMute.bind(this));
     service
       .addCharacteristic(Characteristic.Volume)
       .on('get', this.getVolume.bind(this))
