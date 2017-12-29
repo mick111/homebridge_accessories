@@ -1,26 +1,26 @@
 /*
 {
-    "bridge": {
-        "name": "HomeBridge",
-        "username": "CC:22:3D:E3:CE:30",
-        "port": 51826,
-        "pin": "031-45-154"
-    },
+"bridge": {
+"name": "HomeBridge",
+"username": "CC:22:3D:E3:CE:30",
+"port": 51826,
+"pin": "031-45-154"
+},
 
-    "description": "",
+"description": "",
 
-    "accessories": [
-        {
-            "accessory": "PhilipsTV",
-            "name": "TV Philips",
-            "username": "theusernamegenerated",
-            "password": "thepasswordgenerated",
-            "wol_mac": "XX:XX:XX:XX:XX:XX",
-            "hostname": "192.168.XX.XX"
-        }
-      ],
+"accessories": [
+{
+"accessory": "PhilipsTV",
+"name": "TV Philips",
+"username": "theusernamegenerated",
+"password": "thepasswordgenerated",
+"wol_mac": "XX:XX:XX:XX:XX:XX",
+"hostname": "192.168.XX.XX"
+}
+],
 
-      "platforms": []
+"platforms": []
 }
 */
 var Service, Characteristic;
@@ -29,18 +29,18 @@ var wol = require('wol');
 var www_authenticate = require('www-authenticate');
 
 module.exports = function(homebridge) {
-    // Service and Characteristic are from hap-nodejs
-    Service = homebridge.hap.Service;
-    Characteristic = homebridge.hap.Characteristic;
+  // Service and Characteristic are from hap-nodejs
+  Service = homebridge.hap.Service;
+  Characteristic = homebridge.hap.Characteristic;
 
-    // Register accessory
-    homebridge.registerAccessory("homebridge-philipstv", "PhilipsTV", PhilipsTV);
+  // Register accessory
+  homebridge.registerAccessory("homebridge-philipstv", "PhilipsTV", PhilipsTV);
 };
 
 
 // Accessory constructor
 function PhilipsTV(log, config) {
-	this.log = log;
+  this.log = log;
 
   this.name = config.name;
   this.log("Creation of PhilipsTV named " + this.name);
@@ -127,10 +127,10 @@ PhilipsTV.prototype = {
 
       // If Status Code is 401, we have to reperform the request with correct headers
       if (response.statusCode == 401) {
-          var authenticator = this.on_www_authenticate(response.headers['www-authenticate']);
-          var authorizationHeader = authenticator.authorize(method, path)
-          response.resume();
-          self.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self);
+        var authenticator = this.on_www_authenticate(response.headers['www-authenticate']);
+        var authorizationHeader = authenticator.authorize(method, path)
+        response.resume();
+        self.makeRequest(path, method, postData, authorizationHeader, callback, tries, homebridge_callback, self);
       }
     });
 
@@ -169,7 +169,7 @@ PhilipsTV.prototype = {
     this.log("Get powerstate");
     this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
   },
-	setPowerState: function(powerOn, callback) {
+  setPowerState: function(powerOn, callback) {
     if (powerOn) {
       this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
     } else {
@@ -182,7 +182,7 @@ PhilipsTV.prototype = {
   //   //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.powerstateHandler, 10, callback, this);
   //   callback(null, Characteristic.RotationDirection.CLOCKWISE);
   // },
-	// setRotationDirection: function(direction, callback) {
+  // setRotationDirection: function(direction, callback) {
   //   if (Characteristic.RotationDirection.CLOCKWISE == direction) {
   //     //wol.wake(this.macAddress);
   //     //this.makeRequest('/6/powerstate', 'GET', undefined, undefined, this.turnOnIfNeeded, 10, callback, this);
@@ -195,7 +195,7 @@ PhilipsTV.prototype = {
     this.log("Get ambilight currentconfiguration");
     this.makeRequest('/6/ambilight/currentconfiguration', 'GET', undefined, undefined, this.ambilightcurrentconfigurationHandler, 10, callback, this);
   },
-	setSwingMode: function(mode, callback) {
+  setSwingMode: function(mode, callback) {
     if (Characteristic.SwingMode.SWING_DISABLED == mode) {
       this.makeRequest('/6/ambilight/currentconfiguration', 'POST', JSON.stringify({"styleName":"OFF","isExpert":false}), undefined, this.setAmbilightcurrentconfigurationHandler, 10, callback, this);
     } else if (Characteristic.SwingMode.SWING_ENABLED == mode) {
@@ -208,7 +208,7 @@ PhilipsTV.prototype = {
     this.log("Get Volume");
     this.makeRequest('/6/audio/volume', 'GET', undefined, undefined, this.getVolumeHandler, 10, callback, this);
   },
-	setVolume: function(value, callback) {
+  setVolume: function(value, callback) {
     if (value > 90) {
       callback();
       return;
@@ -217,9 +217,9 @@ PhilipsTV.prototype = {
     this.makeRequest('/6/audio/volume', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler, 10, callback, this);
   },
   identify: function(callback) {
-		this.log("Identify requested!");
-		callback(); // success
-	},
+    this.log("Identify requested!");
+    callback(); // success
+  },
   getServices: function() {
     var informationService = new Service.AccessoryInformation();
     informationService
@@ -227,24 +227,24 @@ PhilipsTV.prototype = {
       .setCharacteristic(Characteristic.Model, this.name)
       .setCharacteristic(Characteristic.SerialNumber, this.macAddress);
 
-          this.fanService = new Service.Fan(this.name);
-          this.fanService
-            .getCharacteristic(Characteristic.On)
-            .on('get', this.getPowerState.bind(this))
-            .on('set', this.setPowerState.bind(this));
-          this.fanService
-            .addCharacteristic(Characteristic.RotationSpeed)
-            .on('get', this.getVolume.bind(this))
-            .on('set', this.setVolume.bind(this));
-          // this.fanService
-          //   .addCharacteristic(Characteristic.RotationDirection)
-          //   .on('get', this.getRotationDirection.bind(this))
-          //   .on('set', this.setRotationDirection.bind(this));
-          this.fanService
-            .addCharacteristic(Characteristic.SwingMode)
-            .on('get', this.getSwingMode.bind(this))
-            .on('set', this.setSwingMode.bind(this));
+    service = new Service.Speaker(this.name);
+    service
+      .getCharacteristic(Characteristic.Mute)
+      .on('get', this.getPowerState.bind(this))
+      .on('set', this.setPowerState.bind(this));
+    service
+      .addCharacteristic(Characteristic.Volume)
+      .on('get', this.getVolume.bind(this))
+      .on('set', this.setVolume.bind(this));
+    // this.service
+    //   .addCharacteristic(Characteristic.RotationDirection)
+    //   .on('get', this.getRotationDirection.bind(this))
+    //   .on('set', this.setRotationDirection.bind(this));
+    // service
+    //   .addCharacteristic(Characteristic.SwingMode)
+    //   .on('get', this.getSwingMode.bind(this))
+    //   .on('set', this.setSwingMode.bind(this));
 
-    return [informationService, this.fanService];
-    }
+    return [informationService, service];
+  }
 };
