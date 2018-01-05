@@ -90,7 +90,6 @@ function Thermostat(log, config) {
   this.temperature = 19;
   this.temperatureError = null;
   // The value property of CurrentHeatingCoolingState must be one of the following:
-  var startHeatingState = config.startHeatingState || "AUTO";
   //Characteristic.CurrentHeatingCoolingState.OFF = 0;
   //Characteristic.CurrentHeatingCoolingState.HEAT = 1;
   //Characteristic.CurrentHeatingCoolingState.COOL = 2;
@@ -101,7 +100,9 @@ function Thermostat(log, config) {
   //Characteristic.TargetHeatingCoolingState.OFF = 0;
   //Characteristic.TargetHeatingCoolingState.HEAT = 1;
   //Characteristic.TargetHeatingCoolingState.COOL = 2;
-  //Characteristic.TargetHeatingCoolingState.AUTO    this.targetHeatingSCoolingState =
+  //Characteristic.TargetHeatingCoolingState.AUTO = 3;
+  var startHeatingState = config.startHeatingState || "AUTO";
+  this.targetHeatingCoolingState =
      startHeatingState == "AUTO" ?
           Characteristic.TargetHeatingCoolingState.AUTO :
           Characteristic.TargetHeatingCoolingState.OFF;
