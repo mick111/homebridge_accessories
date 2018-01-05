@@ -18,6 +18,8 @@
             "Heat_Command_Value": 1,
             "minHeatingValue": 15,
             "maxHeatingValue": 23,
+            "startHeatingValue": 20,
+            "startHeatingState": "AUTO",
             "removeForceHeating": true,
             "removeForceCooling": true
         }
@@ -84,21 +86,25 @@ function Thermostat(log, config) {
   //Characteristic.TemperatureDisplayUnits.CELSIUS = 0;
   //Characteristic.TemperatureDisplayUnits.FAHRENHEIT = 1;
   this.temperatureDisplayUnits = Characteristic.TemperatureDisplayUnits.CELSIUS;
+   
   this.temperature = 19;
   this.temperatureError = null;
   // The value property of CurrentHeatingCoolingState must be one of the following:
+  var startHeatingState = config.startHeatingState || "AUTO";
   //Characteristic.CurrentHeatingCoolingState.OFF = 0;
   //Characteristic.CurrentHeatingCoolingState.HEAT = 1;
   //Characteristic.CurrentHeatingCoolingState.COOL = 2;
   this.heatingCoolingState = Characteristic.CurrentHeatingCoolingState.OFF;
-  this.targetTemperature = 21;
+  this.targetTemperature = config.startHeatingValue || 20;
   this.heatingThreshold = 2;
   // The value property of TargetHeatingCoolingState must be one of the following:
   //Characteristic.TargetHeatingCoolingState.OFF = 0;
   //Characteristic.TargetHeatingCoolingState.HEAT = 1;
   //Characteristic.TargetHeatingCoolingState.COOL = 2;
-  //Characteristic.TargetHeatingCoolingState.AUTO = 3;
-  this.targetHeatingCoolingState = Characteristic.TargetHeatingCoolingState.OFF;
+  //Characteristic.TargetHeatingCoolingState.AUTO    this.targetHeatingSCoolingState =
+     startHeatingState == "AUTO" ?
+          Characteristic.TargetHeatingCoolingState.AUTO :
+          Characteristic.TargetHeatingCoolingState.OFF;
 
   // Temperature pooling
   this.temperaturePooling = config['temperaturePooling'];
