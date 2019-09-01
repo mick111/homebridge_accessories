@@ -143,7 +143,9 @@ VeluxMouchar.prototype = {
     callback(null, 2);
   },
   setTargetPosition: function(value, callback) {
-    this.log("Get Target Position", value);
+    this.log("Set Target Position", value);
+    this.service.getCharacteristic(Characteristic.PositionState)
+         .setValue(2);
     callback();
   },
   getTargetPosition: function(callback) {
