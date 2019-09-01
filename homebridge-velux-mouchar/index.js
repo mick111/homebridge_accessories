@@ -72,7 +72,11 @@ VeluxMouchar.prototype = {
   // },
   getCurrentPositionHandler: function(path, method, distance, homebridge_callback) {
     if (path=='/distance' && method == 'GET' && distance != undefined && homebridge_callback != undefined) {
-      homebridge_callback(null, (distance-50 / 50));
+      var percentage = ((distance-65) / 50);
+      if (percentage < 0) { percentage = 0; }
+      if (percentage > 100) { percentage = 100; }
+      this.log('Percentage:', percentage);
+      homebridge_callback(null, percentage);
     }
   },
   makeRequest: function(path, method, postData, authorizationHeader, handler, tries, homebridge_callback) {
