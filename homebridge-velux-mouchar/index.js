@@ -71,7 +71,7 @@ VeluxMouchar.prototype = {
   //   homebridge_callback();
   // },
   getCurrentPositionHandler: function(path, method, json, homebridge_callback) {
-    if (path=='/distance' && method == 'GET' && json != undefined) {
+    if (path=='/distance' && method == 'GET' && json != undefined && homebridge_callback != undefined) {
       homebridge_callback(null, json);
     }
   },
