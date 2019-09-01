@@ -176,6 +176,8 @@ VeluxMouchar.prototype = {
 
     characteristic = service.getCharacteristic(Characteristic.PositionState)
       .on('get', this.getPositionState.bind(this));
+
+    this.service = service;
     //       // Required Characteristics
     // this.addCharacteristic(Characteristic.CurrentPosition);
     // this.addCharacteristic(Characteristic.TargetPosition);
