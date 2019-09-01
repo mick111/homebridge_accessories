@@ -70,9 +70,9 @@ VeluxMouchar.prototype = {
   //   }
   //   homebridge_callback();
   // },
-  getCurrentPositionHandler: function(path, method, json, homebridge_callback) {
-    if (path=='/distance' && method == 'GET' && json != undefined && homebridge_callback != undefined) {
-      homebridge_callback(null, json);
+  getCurrentPositionHandler: function(path, method, distance, homebridge_callback) {
+    if (path=='/distance' && method == 'GET' && distance != undefined && homebridge_callback != undefined) {
+      homebridge_callback(null, (distance-50 / 50));
     }
   },
   makeRequest: function(path, method, postData, authorizationHeader, handler, tries, homebridge_callback) {
@@ -146,10 +146,10 @@ VeluxMouchar.prototype = {
       .setCharacteristic(Characteristic.SerialNumber, this.macAddress);
 
     service = new Service.Window(this.name);
-    service
-      .getCharacteristic(Characteristic.CurrentPosition)
-      .on('get', this.getCurrentPosition.bind(this))
-      .on('set', this.setCurrentPosition.bind(this));
+    characteristic = service.getCharacteristic(Characteristic.CurrentPosition)
+
+    characteristic
+      .on('get', this.getCurrentPosition.bind(this));
     // this.service
     //   .addCharacteristic(Characteristic.RotationDirection)
     //   .on('get', this.getRotationDirection.bind(this))
