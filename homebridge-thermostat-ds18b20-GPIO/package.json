@@ -29,6 +29,6 @@
   "homepage": "https://github.com/mick111/homebridge-thermostat-ds18b20-GPIO#readme",
   "dependencies": {
     "ds18b20": "^0.1.0",
-    "onoff" : "1.1.0"
+    "onoff": "^4.1.3"
   }
 }
