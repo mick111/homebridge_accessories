@@ -53,7 +53,7 @@ function VeluxMouchar(log, config) {
     agent: this.keepAliveAgent,
     rejectUnauthorized: false
   };
-  this.makeRequest('/distance', 'GET', undefined, undefined, this.getCurrentPositionHandler.bind(this), 10, callback);
+  this.makeRequest('/distance', 'GET', undefined, undefined, this.getCurrentPositionHandler.bind(this), 10, undefined);
 };
 
 
