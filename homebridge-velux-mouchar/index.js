@@ -135,8 +135,20 @@ VeluxMouchar.prototype = {
     this.log("Get Distance");
     this.makeRequest('/distance', 'GET', undefined, undefined, this.getCurrentPositionHandler.bind(this), 10, callback);
   },
-  setCurrentPosition: function(value, callback) {
-    this.makeRequest('/distance', 'POST', JSON.stringify({"current": value, "muted": false}), undefined, this.setVolumeHandler.bind(this), 10, callback);
+  getPositionState: function(callback) {
+    // static readonly DECREASING = 0;
+    // static readonly INCREASING = 1;
+    // static readonly STOPPED = 2;
+    this.log("Get Position State");
+    callback(null, 2);
+  },
+  setTargetPosition: function(value, callback) {
+    this.log("Get Target Position", value);
+    callback();
+  },
+  getTargetPosition: function(callback) {
+    this.log("Get Target Position", value);
+    this.makeRequest('/distance', 'GET', undefined, undefined, this.getCurrentPositionHandler.bind(this), 10, callback);
   },
   identify: function(callback) {
     this.log("Identify requested!");
@@ -154,6 +166,18 @@ VeluxMouchar.prototype = {
 
     characteristic
       .on('get', this.getCurrentPosition.bind(this));
+
+
+    characteristic = service.getCharacteristic(Characteristic.TargetPosition)
+      .on('get', this.getTargetPosition.bind(this))
+      .on('set', this.setTargetPosition.bind(this));
+
+    characteristic = service.getCharacteristic(Characteristic.PositionState)
+      .on('get', this.getPositionState.bind(this));
+    //       // Required Characteristics
+    // this.addCharacteristic(Characteristic.CurrentPosition);
+    // this.addCharacteristic(Characteristic.TargetPosition);
+    // this.addCharacteristic(Characteristic.PositionState);
     // this.service
     //   .addCharacteristic(Characteristic.RotationDirection)
     //   .on('get', this.getRotationDirection.bind(this))
