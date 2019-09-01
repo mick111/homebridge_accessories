@@ -53,6 +53,7 @@ function VeluxMouchar(log, config) {
     agent: this.keepAliveAgent,
     rejectUnauthorized: false
   };
+  this.makeRequest('/distance', 'GET', undefined, undefined, this.getCurrentPositionHandler.bind(this), 10, callback);
 };
 
 
@@ -121,7 +122,6 @@ VeluxMouchar.prototype = {
     // Configuration of error
     request.on('error', (function(e) {
       this.log('Error:', e.code);
-      wol.wake(this.macAddress);
 
       if (tries > 0 && (e.code == 'ECONNREFUSED' || e.code == 'EHOSTDOWN')) {
         this.log("Programming to reiter request in 1 second");
