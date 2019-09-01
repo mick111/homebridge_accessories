@@ -94,6 +94,7 @@ VeluxMouchar.prototype = {
       response.on('end', (function () {
         // A status code of 200 indicates that the response is OK
         if (response.statusCode == 200 && handler != undefined) {
+          this.log('response.statusCode:', response.statusCode, ' -- ', str);
           handler(path, method, (str == '') ? undefined : str, homebridge_callback);
         }
         str = '';
