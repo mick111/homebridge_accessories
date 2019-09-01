@@ -25,7 +25,7 @@
 }
 */
 var Service, Characteristic;
-var https = require('https');
+var https = require('http');
 
 module.exports = function(homebridge) {
   // Service and Characteristic are from hap-nodejs
@@ -98,15 +98,6 @@ VeluxMouchar.prototype = {
         }
         str = '';
       }).bind(this));
-
-
-      // If Status Code is 401, we have to reperform the request with correct headers
-      if (response.statusCode == 401) {
-        var authenticator = this.on_www_authenticate(response.headers['www-authenticate']);
-        var authorizationHeader = authenticator.authorize(method, path)
-        response.resume();
-        this.makeRequest(path, method, postData, authorizationHeader, handler, tries, homebridge_callback);
-      }
     }).bind(this));
 
     // Add Authorization Header if provided
