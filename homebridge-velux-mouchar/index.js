@@ -72,7 +72,7 @@ VeluxMouchar.prototype = {
   // },
   getCurrentPositionHandler: function(path, method, json, homebridge_callback) {
     if (path=='/distance' && method == 'GET' && json != undefined) {
-      homebridge_callback(null, str);
+      homebridge_callback(null, json);
     }
   },
   makeRequest: function(path, method, postData, authorizationHeader, handler, tries, homebridge_callback) {
