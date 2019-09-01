@@ -147,7 +147,7 @@ VeluxMouchar.prototype = {
     callback();
   },
   getTargetPosition: function(callback) {
-    this.log("Get Target Position", value);
+    this.log("Get Target Position");
     this.makeRequest('/distance', 'GET', undefined, undefined, this.getCurrentPositionHandler.bind(this), 10, callback);
   },
   identify: function(callback) {
