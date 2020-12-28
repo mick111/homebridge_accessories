@@ -189,7 +189,7 @@ PortailDouble.prototype = {
   Contact_processGPIOWatch:function(callerIdentifier) {
       if (this.Contact_lastCallerIdentifier != callerIdentifier) {
         // Ignore if it is not the last caller identifier
-        this.log("Ignoring because " + callerIdentifier + " is not the last caller identifier " + this.Contact_lastCallerIdentifier);
+        //this.log("Ignoring because " + callerIdentifier + " is not the last caller identifier " + this.Contact_lastCallerIdentifier);
         return;
       }
 
@@ -197,14 +197,14 @@ PortailDouble.prototype = {
       gpioValue = this.forceRead(this.Contact_gpio);
       if (gpioValue == this.Contact_currentGpioValue) {
         // Ok, we consider that it was nothing
-        this.log("Ignoring because " + gpioValue + " does not differ from last value " + this.Contact_currentGpioValue);
+        //this.log("Ignoring because " + gpioValue + " does not differ from last value " + this.Contact_currentGpioValue);
         return;
       }
 
       // Change to be considered
       this.Contact_changesCounter++;
       this.Contact_currentGpioValue = gpioValue;
-      this.log('Changes counter ' + this.Contact_changesCounter);
+      //this.log('Changes counter ' + this.Contact_changesCounter);
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState)
         .setValue(this.currentDoorState());
 
