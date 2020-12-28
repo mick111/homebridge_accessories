@@ -88,7 +88,7 @@ function PortailDouble(log, config) {
     // If a change has been observed before scheduled this.Contact_processGPIOWatch has been invoked
     // the scheduled this.Contact_processGPIOWatch will be invalidated.
     this.Contact_lastCallerIdentifier = Date.now();
-    this.log("Change detected to " + value + " invoking in " + this.Contact_holdoffMS + "ms processChange with " + this.Contact_lastCallerIdentifier);
+    //this.log("Change detected to " + value + " invoking in " + this.Contact_holdoffMS + "ms processChange with " + this.Contact_lastCallerIdentifier);
     setTimeout(this.Contact_processGPIOWatch.bind(this), this.Contact_holdoffMS, this.Contact_lastCallerIdentifier);
   }).bind(this));
 
