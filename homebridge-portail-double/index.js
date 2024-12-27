@@ -114,7 +114,7 @@ class PortailDouble {
   }
 
   getContact_ContactSensorState(callback) {
-    callback(null, this.Contact_Value);
+    callback(null, this.Contact_Value == 0);
   }
 
   getServices() {
@@ -135,7 +135,12 @@ class PortailDouble {
      */
     rpio.msleep(20);
     if (value != rpio.read(pin)) return;
-    this.log("Contact on pin P%d has set to %s", pin, value);
-    this.Contact_Value = value;
+    this.log.debug("Contact on pin P%d has set to %s", pin, value);
+    if (this.Contact_Value != value) {
+      this.Contact_Value = value;
+      this.Contact_ContactSensorService.getCharacteristic(
+        Characteristic.ContactSensorState
+      ).setValue(value == 0);
+    }
   }
 }
