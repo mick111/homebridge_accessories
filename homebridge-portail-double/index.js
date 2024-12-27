@@ -46,7 +46,7 @@ class PortailDouble {
       "Petite Ouverture",
       "button2"
     );
-    this.OuverturePieton_SwitchService.getCharacteristic(Characteristic.On)
+    this.PetiteOuverture_SwitchService.getCharacteristic(Characteristic.On)
       .on("get", this.getPetiteOuverture_SwitchState.bind(this))
       .on("set", this.setPetiteOuverture_SwitchState.bind(this));
   }
