@@ -1,12 +1,8 @@
 {
-  "name": "homebridge-portail-double",
-  "version": "1.0.0",
+  "name": "@mick111/homebridge-portail-double",
+  "version": "1.0.2",
   "description": "Homebridge Portail acted by GPIOs",
   "main": "index.js",
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mick111/homebridge-accessories.git"
@@ -24,10 +20,10 @@
   },
   "homepage": "https://github.com/mick111/homebridge-accessories#readme",
   "dependencies": {
-    "onoff": "^6.0.3"
+    "rpio": "^2.2.0"
   },
   "engines": {
-    "node": ">=0.12.0",
-    "homebridge": ">=0.2.0"
+    "node": ">=14.18.1",
+    "homebridge": ">=1.3.5"
   }
 }

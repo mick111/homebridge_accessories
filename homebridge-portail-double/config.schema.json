@@ -1,0 +1,50 @@
+{
+  "pluginAlias": "PortailDouble",
+  "pluginType": "accessory",
+  "singular": false,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true,
+        "placeholder": "Portail",
+        "default": "Portail"
+      },
+      "GrandeOuverture_GPIO": {
+        "title": "GPIO Physical PIN for big opening",
+        "description": "The GPIO pin the plugin should use to open totally the portail.",
+        "type": "integer",
+        "required": true,
+        "placeholder": "e.g. 3 for GPIO2"
+      },
+      "GrandeOuverture_CommandHigh": {
+        "title": "Grande Ouverture command polarity",
+        "description": "Set to True if the command should be HIGH to activate.",
+        "type": "boolean",
+        "default": true
+      },
+      "PetiteOuverture_GPIO": {
+        "title": "GPIO Physical PIN for little opening",
+        "description": "The GPIO Physical PIN the plugin should use to open only the small door of the portail.",
+        "type": "integer",
+        "required": true,
+        "placeholder": "e.g. 5 for GPIO3"
+      },
+      "PetiteOuverture_CommandHigh": {
+        "title": "Petite Ouverture command polarity",
+        "description": "Set to True if the command should be HIGH to activate.",
+        "type": "boolean",
+        "default": false
+      },
+      "Contact_GPIO": {
+        "title": "GPIO Physical PIN for state input",
+        "description": "The GPIO pin the plugin should use to read the state of the Portail. A HIGH signal will indicate an OPEN garage door.",
+        "type": "integer",
+        "required": true,
+        "placeholder": "e.g. 8 for GPIO14"
+      }
+    }
+  }
+}
