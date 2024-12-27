@@ -30,7 +30,20 @@ class PortailDouble {
 
     this.Contact_Value = rpio.read(this.Contact_GPIO);
 
-    rpio.poll(this.Contact_GPIO, this.pollcb);
+    function pollcb(pin) {
+      var value = rpio.read(pin);
+      /*
+       * Wait for a small period of time to avoid rapid changes which
+       * can't all be caught with the 1ms polling frequency.
+       * If the pin has not the same value after the wait then ignore it.
+       */
+      rpio.msleep(20);
+      if (value != rpio.read(pin)) return;
+      this.log("Contact on pin P%d has set to %s", pin, value);
+      this.Contact_Value = value;
+    }
+
+    rpio.poll(this.Contact_GPIO, pollcb);
 
     // Services instantiations
 
@@ -124,18 +137,5 @@ class PortailDouble {
       this.PetiteOuverture_SwitchService,
       this.Contact_ContactSensorService,
     ];
-  }
-
-  pollcb(pin) {
-    var value = rpio.read(pin);
-    /*
-     * Wait for a small period of time to avoid rapid changes which
-     * can't all be caught with the 1ms polling frequency.
-     * If the pin has not the same value after the wait then ignore it.
-     */
-    rpio.msleep(20);
-    if (value != rpio.read(pin)) return;
-    this.log("Contact on pin P%d has set to %s", pin, value);
-    this.Contact_Value = value;
   }
 }
