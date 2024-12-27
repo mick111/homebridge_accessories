@@ -22,9 +22,15 @@ class PortailDouble {
 
     this.GrandeOuverture_GPIO = config.GrandeOuverture_GPIO;
     this.PetiteOuverture_GPIO = config.PetiteOuverture_GPIO;
+    this.Contact_GPIO = config.Contact_GPIO;
 
     rpio.open(this.GrandeOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
     rpio.open(this.PetiteOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
+    rpio.open(this.Contact_GPIO, rpio.INPUT, rpio.PULL_UP);
+
+    this.Contact_Value = rpio.read(this.Contact_GPIO);
+
+    rpio.poll(this.Contact_GPIO, this.pollcb);
 
     // Services instantiations
 
@@ -52,6 +58,14 @@ class PortailDouble {
     this.PetiteOuverture_SwitchService.getCharacteristic(Characteristic.On)
       .on("get", this.getPetiteOuverture_SwitchState.bind(this))
       .on("set", this.setPetiteOuverture_SwitchState.bind(this));
+
+    this.Contact_ContactSensorService = new Service.ContactSensor(
+      "Contact Sensor",
+      "contact"
+    );
+    this.Contact_ContactSensorService.getCharacteristic(
+      Characteristic.ContactSensorState
+    ).on("get", this.getContact_ContactSensorState.bind(this));
   }
 
   getGrandeOuverture_SwitchState(callback) {
@@ -99,11 +113,29 @@ class PortailDouble {
     callback();
   }
 
+  getContact_ContactSensorState(callback) {
+    callback(null, this.Contact_Value);
+  }
+
   getServices() {
     return [
       this.informationService,
       this.GrandeOuverture_SwitchService,
       this.PetiteOuverture_SwitchService,
+      this.Contact_ContactSensorService,
     ];
+  }
+
+  pollcb(pin) {
+    var value = rpio.read(pin);
+    /*
+     * Wait for a small period of time to avoid rapid changes which
+     * can't all be caught with the 1ms polling frequency.
+     * If the pin has not the same value after the wait then ignore it.
+     */
+    rpio.msleep(20);
+    if (value != rpio.read(pin)) return;
+    this.log("Contact on pin P%d has set to %s", pin, value);
+    this.Contact_Value = value;
   }
 }
