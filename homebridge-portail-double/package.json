@@ -1,5 +1,5 @@
 {
-  "name": "@mick111/homebridge-portail-double",
+  "name": "homebridge-portail-double",
   "version": "1.0.2",
   "description": "Homebridge Portail acted by GPIOs",
   "main": "index.js",
