@@ -70,7 +70,7 @@ class PortailDouble {
 
   getGrandeOuverture_SwitchState(callback) {
     var onCommand = rpio.read(this.GrandeOuverture_GPIO);
-    this.log(
+    this.log.debug(
       "Getting Grande ouverture state: %s %s",
       onCommand,
       onCommand == 0
@@ -78,7 +78,7 @@ class PortailDouble {
     callback(null, onCommand == 0);
   }
   setGrandeOuverture_SwitchState(value, callback) {
-    this.log("Setting Grande ouverture state to %s", value);
+    this.log.debug("Setting Grande ouverture state to %s", value);
     rpio.write(this.GrandeOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
     if (value) {
@@ -92,7 +92,7 @@ class PortailDouble {
 
   getPetiteOuverture_SwitchState(callback) {
     var onCommand = rpio.read(this.PetiteOuverture_GPIO);
-    this.log(
+    this.log.debug(
       "Getting Petite ouverture state: %s %s",
       onCommand,
       onCommand == 0
@@ -100,7 +100,7 @@ class PortailDouble {
     callback(null, onCommand == 0);
   }
   setPetiteOuverture_SwitchState(value, callback) {
-    this.log("Setting Petite ouverture state to %s", value);
+    this.log.debug("Setting Petite ouverture state to %s", value);
     rpio.write(this.PetiteOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
     if (value) {
@@ -138,6 +138,7 @@ class PortailDouble {
     this.log.debug("Contact on pin P%d has set to %s", pin, value);
     if (this.Contact_Value != value) {
       this.Contact_Value = value;
+      this.log("Setting contact sensor state to: %s, %s", value, value == 0);
       this.Contact_ContactSensorService.getCharacteristic(
         Characteristic.ContactSensorState
       ).setValue(value == 0);
