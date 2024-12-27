@@ -66,6 +66,13 @@ class PortailDouble {
   setGrandeOuverture_SwitchState(value, callback) {
     this.log("Setting Grande ouverture state to %s", value);
     rpio.write(this.GrandeOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
+
+    if (value) {
+      var c = this.GrandeOuverture_SwitchService.getCharacteristic(
+        Characteristic.On
+      );
+      setTimeout(c.setValue.bind(c, false), 500);
+    }
     callback();
   }
 
@@ -81,6 +88,14 @@ class PortailDouble {
   setPetiteOuverture_SwitchState(value, callback) {
     this.log("Setting Petite ouverture state to %s", value);
     rpio.write(this.PetiteOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
+
+    if (value) {
+      var c = this.PetiteOuverture_SwitchService.getCharacteristic(
+        Characteristic.On
+      );
+      setTimeout(c.setValue.bind(c, false), 500);
+    }
+
     callback();
   }
 
@@ -88,7 +103,7 @@ class PortailDouble {
     return [
       this.informationService,
       this.GrandeOuverture_SwitchService,
-      this.getPetiteOuverture_SwitchService,
+      this.PetiteOuverture_SwitchService,
     ];
   }
 }
