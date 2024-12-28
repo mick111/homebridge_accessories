@@ -195,7 +195,7 @@ class PortailDouble {
      * can't all be caught with the 1ms polling frequency.
      * If the pin has not the same value after the wait then ignore it.
      */
-    rpio.msleep(20);
+    rpio.msleep(10);
     if (value != rpio.read(pin)) return;
     this.log.debug("Contact on pin P%d has set to %s", pin, value);
     this.Contact_Value = value;
@@ -207,6 +207,12 @@ class PortailDouble {
       this.Contact_ContactSensorService.getCharacteristic(
         Characteristic.ContactSensorState
       ).updateValue(new_state);
+
+      this.GarageDoor_targetDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+      this.GarageDoor_currentDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+
+      this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.GarageDoor_currentDoorState);
+      this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(this.GarageDoor_targetDoorState);
     }
   }
 }
