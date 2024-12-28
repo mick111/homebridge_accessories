@@ -174,7 +174,9 @@ class PortailDouble {
   setDoorRequest(value) {
     this.log("Garage door Target request: %s", value);
     this.GarageDoor_doorStateCurrentRequest = value;
-    this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(value);
+    if (value != null) {
+      this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(value);
+    }
   }
 
   setTargetDoorState(value) {
