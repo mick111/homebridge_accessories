@@ -89,21 +89,21 @@ class PortailDouble {
     // Characteristic.ObstructionDetected : [READ]
     this.GarageDoorOpenerService.getCharacteristic(
       Characteristic.ObstructionDetected
-    ).onGet(function (callback) {
-      return callback(null, false);
+    ).onGet(function () {
+      return false;
     });
   }
 
-  getGrandeOuverture_SwitchState(callback) {
+  getGrandeOuverture_SwitchState() {
     var onCommand = rpio.read(this.GrandeOuverture_GPIO);
     this.log.debug(
       "Getting Grande ouverture state: %s %s",
       onCommand,
       onCommand == 0
     );
-    callback(null, onCommand == 0);
+    return onCommand == 0;
   }
-  setGrandeOuverture_SwitchState(value, callback) {
+  setGrandeOuverture_SwitchState(value) {
     this.log.debug("Setting Grande ouverture state to %s", value);
     rpio.write(this.GrandeOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
@@ -113,19 +113,19 @@ class PortailDouble {
       );
       setTimeout(c.setValue.bind(c, false), 500);
     }
-    callback();
   }
 
-  getPetiteOuverture_SwitchState(callback) {
+  getPetiteOuverture_SwitchState() {
     var onCommand = rpio.read(this.PetiteOuverture_GPIO);
     this.log.debug(
       "Getting Petite ouverture state: %s %s",
       onCommand,
       onCommand == 0
     );
-    callback(null, onCommand == 0);
+    return onCommand == 0;
   }
-  setPetiteOuverture_SwitchState(value, callback) {
+
+  setPetiteOuverture_SwitchState(value) {
     this.log.debug("Setting Petite ouverture state to %s", value);
     rpio.write(this.PetiteOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
@@ -135,12 +135,10 @@ class PortailDouble {
       );
       setTimeout(c.setValue.bind(c, false), 500);
     }
-
-    callback();
   }
 
-  getContact_ContactSensorState(callback) {
-    callback(null, this.Contact_Value == 0);
+  getContact_ContactSensorState() {
+    return this.Contact_Value == 0;
   }
 
   updateStateFromGPIO() {
@@ -152,7 +150,7 @@ class PortailDouble {
     this.GarageDoor_currentDoorState = open ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
   }
 
-  getCurrentDoorState(callback) {
+  getCurrentDoorState() {
     // Characteristic.CurrentDoorState.OPEN = 0;
     // Characteristic.CurrentDoorState.CLOSED = 1;
     // Characteristisc.CurrentDoorState.OPENING = 2;
@@ -162,21 +160,17 @@ class PortailDouble {
     var open =
       this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH);
     this.log.debug("Garage door current state opened: %s", open);
-    callback(
-      null,
-      open
-        ? Characteristic.CurrentDoorState.OPEN
-        : Characteristic.CurrentDoorState.CLOSED
-    );
+    return open
+      ? Characteristic.CurrentDoorState.OPEN
+      : Characteristic.CurrentDoorState.CLOSED;
   }
 
-  getTargetDoorState(callback) {
-    callback(null, this.GarageDoor_targetDoorState);
+  getTargetDoorState() {
+    return this.GarageDoor_targetDoorState;
   }
 
-  setTargetDoorState(value, callback) {
+  setTargetDoorState(value) {
     this.log("Set Garage door current state: %s", value);
-    callback();
   }
 
   getServices() {
