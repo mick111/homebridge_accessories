@@ -81,7 +81,7 @@ class PortailDouble {
 
     // Characteristic.TargetDoorState : [READ / WRITE]
     this.GarageDoorOpenerService
-      .getCharacteristic(this.api.hap.Characteristic.TargetDoorState)
+      .getCharacteristic(Characteristic.TargetDoorState)
       .onGet(this.getTargetDoorState.bind(this))
       .onSet(this.setTargetDoorState.bind(this));
 
