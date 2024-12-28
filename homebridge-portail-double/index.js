@@ -29,7 +29,7 @@ class PortailDouble {
     rpio.open(this.PetiteOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
     rpio.open(this.Contact_GPIO, rpio.INPUT, rpio.PULL_UP);
 
-    this.updateStateFromGPIO();
+    this.updateStatesFromGPIO(true);
     this.GarageDoor_targetDoorState = this.GarageDoor_currentDoorState;
 
     // Polling for Input changes
@@ -137,17 +137,19 @@ class PortailDouble {
     }
   }
 
-  getContact_ContactSensorState() {
-    return this.Contact_Value == 0;
-  }
-
-  updateStateFromGPIO() {
-    this.Contact_Value = rpio.read(this.Contact_GPIO);
+  updateStatesFromGPIO(do_read) {
+    if (do_read) {
+      this.Contact_Value = rpio.read(this.Contact_GPIO);
+    }
     this.log("Contact is high? %s", this.Contact_Value == rpio.HIGH);
     this.log("Closed Value is Contact High ? %s", this.Contact_closedValueIsHigh);
     var open = this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH);
     this.log("Is open? %s", open);
     this.GarageDoor_currentDoorState = open ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+  }
+
+  getContact_ContactSensorState() {
+    return this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH);
   }
 
   getCurrentDoorState() {
@@ -156,13 +158,7 @@ class PortailDouble {
     // Characteristisc.CurrentDoorState.OPENING = 2;
     // Characteristic.CurrentDoorState.CLOSING = 3;
     // Characteristic.CurrentDoorState.STOPPED = 4;
-    this.Contact_Value = rpio.read(this.Contact_GPIO);
-    var open =
-      this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH);
-    this.log.debug("Garage door current state opened: %s", open);
-    return open
-      ? Characteristic.CurrentDoorState.OPEN
-      : Characteristic.CurrentDoorState.CLOSED;
+    return this.GarageDoor_currentDoorState;
   }
 
   getTargetDoorState() {
@@ -193,12 +189,15 @@ class PortailDouble {
     rpio.msleep(20);
     if (value != rpio.read(pin)) return;
     this.log.debug("Contact on pin P%d has set to %s", pin, value);
-    if (this.Contact_Value != value) {
-      this.Contact_Value = value;
-      this.log("Setting contact sensor state to: %s, %s", value, value == 0);
+    this.Contact_Value = value;
+    var old_state = this.getContact_ContactSensorState();
+    this.updateStatesFromGPIO(false);
+    var new_state = this.getContact_ContactSensorState();
+    if (old_state != new_state) {
+      this.log("Update contact sensor state from %s to: %s", old_state, new_state);
       this.Contact_ContactSensorService.getCharacteristic(
         Characteristic.ContactSensorState
-      ).setValue(value == 0);
+      ).updateValue(new_state);
     }
   }
 }
