@@ -162,12 +162,21 @@ class PortailDouble {
   }
 
   getTargetDoorState() {
+    this.log("Get Garage door Target state: %s", this.GarageDoor_targetDoorState);
     return this.GarageDoor_targetDoorState;
   }
 
   setTargetDoorState(value) {
-    this.log("Set Garage door current state: %s", value);
+    this.log("Set Garage door Target state: %s", value);
+    this.GarageDoor_targetDoorState = value;
+    if (value == this.GarageDoor_currentDoorState) {
+      // The state is already at the target, nothing to do
+      return;
+    }
+    // Make the Grande Ouverture Switch to be activated
+    this.GrandeOuverture_SwitchService.getCharacteristic(Characteristic.On).setValue(true);
   }
+
 
   getServices() {
     return [
