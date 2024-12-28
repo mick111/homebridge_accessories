@@ -191,15 +191,17 @@ class PortailDouble {
   pollcb(pin) {
     var value = rpio.read(pin);
     /*
-     * Wait for a small period of time to avoid rapid changes which
-     * can't all be caught with the 1ms polling frequency.
+     * Wait for a small period of time to avoid rapid changes.
      * If the pin has not the same value after the wait then ignore it.
      */
-    rpio.msleep(10);
-    if (value != rpio.read(pin)) return;
-    this.log.debug("Contact on pin P%d has set to %s", pin, value);
-    this.Contact_Value = value;
+    rpio.msleep(20);
+    var value2 = rpio.read(pin);
+    this.log.debug("Contact on pin P%d has set to %s, (%s after 10ms)", pin, value, value2);
+    if (value != value2) {
+      return;
+    }
     var old_state = this.getContact_ContactSensorState();
+    this.Contact_Value = value;
     this.updateStatesFromGPIO(false);
     var new_state = this.getContact_ContactSensorState();
     if (old_state != new_state) {
