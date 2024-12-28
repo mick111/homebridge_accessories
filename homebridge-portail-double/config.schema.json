@@ -19,9 +19,9 @@
         "required": true,
         "placeholder": "e.g. 3 for GPIO2"
       },
-      "GrandeOuverture_CommandHigh": {
+      "GrandeOuverture_onCommandValueIsHigh": {
         "title": "Grande Ouverture command polarity",
-        "description": "Set to True if the command should be HIGH to activate.",
+        "description": "Set to True if the command should be LOW-HIGH-LOW to activate.",
         "type": "boolean",
         "default": true
       },
@@ -32,18 +32,31 @@
         "required": true,
         "placeholder": "e.g. 5 for GPIO3"
       },
-      "PetiteOuverture_CommandHigh": {
+      "PetiteOuverture_onCommandValueIsHigh": {
         "title": "Petite Ouverture command polarity",
-        "description": "Set to True if the command should be HIGH to activate.",
+        "description": "Set to True if the command should be LOW-HIGH-LOW to activate.",
         "type": "boolean",
         "default": false
       },
       "Contact_GPIO": {
         "title": "GPIO Physical PIN for state input",
-        "description": "The GPIO pin the plugin should use to read the state of the Portail. A HIGH signal will indicate an OPEN garage door.",
+        "description": "The GPIO pin the plugin should use to read the state of the Portail.",
         "type": "integer",
         "required": true,
         "placeholder": "e.g. 8 for GPIO14"
+      },
+      "Contact_closedValueIsHigh": {
+        "title": "Closed detector polarity",
+        "description": "The polarity for the detector of opening state. If True, the CLOSED state is for a HIGH value.",
+        "type": "boolean",
+        "default": false
+      },
+      "emitDurationMS": {
+        "title": "Emit time",
+        "description": "How many milliseconds should the GPIO outputs be set?",
+        "type": "number",
+        "required": true,
+        "default": 500
       }
     }
   }
