@@ -174,13 +174,14 @@ class PortailDouble {
   setDoorRequest(value) {
     this.log("Garage door Target request: %s", value);
     this.GarageDoor_doorStateCurrentRequest = value;
+    this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(value);
   }
 
   setTargetDoorState(value) {
     this.log("Set Garage door Target state: %s", value);
-    this.setDoorRequest(value);
-    setTimeout(this.setDoorRequest.bind(this), 10000, null);
     this.GarageDoor_targetDoorState = value;
+    this.setDoorRequest(value);
+    setTimeout(this.setDoorRequest.bind(this), 40000, null);
     if (value == this.GarageDoor_currentDoorState) {
       // The state is already at the target, nothing to do
       return;
@@ -223,15 +224,14 @@ class PortailDouble {
       ).updateValue(new_state);
 
       this.GarageDoor_currentDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
-      if (this.GarageDoor_doorStateCurrentRequest != null) {
-        this.GarageDoor_targetDoorState = this.GarageDoor_doorStateCurrentRequest;
-      } else {
-        this.GarageDoor_targetDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
-      }
-
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.GarageDoor_currentDoorState);
-      this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(this.GarageDoor_targetDoorState);
+      this.log.debug("Update Current Door State state to: %s", this.GarageDoor_currentDoorState);
+      if (this.GarageDoor_doorStateCurrentRequest == null) {
+        this.GarageDoor_targetDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+        this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(this.GarageDoor_targetDoorState);
+      }
     }
+
     setTimeout(this.pollcb.bind(this), this.ContactPollTimeMS);
   }
 }
