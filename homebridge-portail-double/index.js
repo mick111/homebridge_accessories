@@ -25,6 +25,8 @@ class PortailDouble {
     this.Contact_GPIO = config.Contact_GPIO;
     this.Contact_closedValueIsHigh = config.Contact_closedValueIsHigh;
 
+    this.GarageDoor_doorStateCurrentRequest = null;
+
     this.ContactPollTimeMS = 1000;
 
     rpio.open(this.GrandeOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
@@ -169,8 +171,15 @@ class PortailDouble {
     return this.GarageDoor_targetDoorState;
   }
 
+  setDoorRequest(value) {
+    this.log("Garage door Target request: %s", value);
+    this.GarageDoor_doorStateCurrentRequest = value;
+  }
+
   setTargetDoorState(value) {
     this.log("Set Garage door Target state: %s", value);
+    this.setDoorRequest(value);
+    setTimeout(this.setDoorRequest.bind(this), 10000, null);
     this.GarageDoor_targetDoorState = value;
     if (value == this.GarageDoor_currentDoorState) {
       // The state is already at the target, nothing to do
@@ -213,8 +222,12 @@ class PortailDouble {
         Characteristic.ContactSensorState
       ).updateValue(new_state);
 
-      this.GarageDoor_targetDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
       this.GarageDoor_currentDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+      if (this.GarageDoor_doorStateCurrentRequest != null) {
+        this.GarageDoor_targetDoorState = this.GarageDoor_doorStateCurrentRequest;
+      } else {
+        this.GarageDoor_targetDoorState = new_state ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+      }
 
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.GarageDoor_currentDoorState);
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(this.GarageDoor_targetDoorState);
