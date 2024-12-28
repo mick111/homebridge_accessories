@@ -141,10 +141,10 @@ class PortailDouble {
     if (do_read) {
       this.Contact_Value = rpio.read(this.Contact_GPIO);
     }
-    this.log("Contact is high? %s", this.Contact_Value == rpio.HIGH);
-    this.log("Closed Value is Contact High ? %s", this.Contact_closedValueIsHigh);
+    // this.log.debug("Contact is high? %s", this.Contact_Value == rpio.HIGH);
+    // this.log.debug("Closed Value is Contact High ? %s", this.Contact_closedValueIsHigh);
     var open = this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH);
-    this.log("Is open? %s", open);
+    // this.log.debug("Is open? %s", open);
     this.GarageDoor_currentDoorState = open ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
   }
 
