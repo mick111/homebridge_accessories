@@ -25,6 +25,8 @@ class PortailDouble {
     this.Contact_GPIO = config.Contact_GPIO;
     this.Contact_closedValueIsHigh = config.Contact_closedValueIsHigh;
 
+    this.ContactPollTimeMS = 1000;
+
     rpio.open(this.GrandeOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
     rpio.open(this.PetiteOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
     rpio.open(this.Contact_GPIO, rpio.INPUT, rpio.PULL_UP);
@@ -33,7 +35,8 @@ class PortailDouble {
     this.GarageDoor_targetDoorState = this.GarageDoor_currentDoorState;
 
     // Polling for Input changes
-    rpio.poll(this.Contact_GPIO, this.pollcb.bind(this));
+    setTimeout(this.pollcb.bind(this), this.ContactPollTimeMS);
+    // rpio.poll(this.Contact_GPIO, this.pollcb.bind(this));
 
     // Services instantiations
 
@@ -188,17 +191,17 @@ class PortailDouble {
     ];
   }
 
-  pollcb(pin) {
-    var value = rpio.read(pin);
+  pollcb() {
+    var value = rpio.read(this.Contact_GPIO);
     /*
      * Wait for a small period of time to avoid rapid changes.
      * If the pin has not the same value after the wait then ignore it.
      */
     rpio.msleep(20);
-    var value2 = rpio.read(pin);
-    this.log.debug("Contact on pin P%d has set to %s, (%s after 10ms)", pin, value, value2);
+    var value2 = rpio.read(this.Contact_GPIO);
+    this.log.debug("Contact on pin P%d has set to %s, (%s after 10ms)", this.Contact_GPIO, value, value2);
     if (value != value2) {
-      return;
+      setTimeout(this.pollcb.bind(this), this.ContactPollTimeMS);
     }
     var old_state = this.getContact_ContactSensorState();
     this.Contact_Value = value;
@@ -216,5 +219,6 @@ class PortailDouble {
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.GarageDoor_currentDoorState);
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.TargetDoorState).updateValue(this.GarageDoor_targetDoorState);
     }
+    setTimeout(this.pollcb.bind(this), this.ContactPollTimeMS);
   }
 }
