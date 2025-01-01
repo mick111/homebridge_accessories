@@ -267,7 +267,7 @@ class PortailDouble {
     // Update the current door state, advertize if necessary
     if (this.GarageDoor_doorStateCurrentRequest == Characteristic.CurrentDoorState.OPEN) {
       // Subtle case, the request was done during less than 40s, the door is "opening".
-      this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.Characteristic.CurrentDoorState.OPENING);
+      this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(Characteristic.CurrentDoorState.OPENING);
     } else {
       // We do not know when the request was performed.
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.GarageDoor_currentDoorState);
