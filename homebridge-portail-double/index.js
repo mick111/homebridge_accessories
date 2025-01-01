@@ -170,9 +170,22 @@ class PortailDouble {
     // - closedValueIsHigh == false and Contact_Value == LOW  => (false ^ false) == false -> DETECTED
     // - closedValueIsHigh == true  and Contact_Value == LOW  => (true  ^ false) == true  -> NOT_DETECTED
     // - closedValueIsHigh == false and Contact_Value == HIGH => (false ^ true)  == true  -> NOT_DETECTED
-    return this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH) ?
+    var state = this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH) ?
       Characteristic.ContactSensorState.CONTACT_NOT_DETECTED :
       Characteristic.ContactSensorState.CONTACT_DETECTED;
+    this.log("Get Contact Sensor State: %s", this.css2str(state));
+    return state;
+  }
+
+  css2str(state) {
+    switch (state) {
+      case Characteristic.ContactSensorState.CONTACT_DETECTED:
+        return "CONTACT_DETECTED";
+      case Characteristic.ContactSensorState.CONTACT_NOT_DETECTED:
+        return "CONTACT_NOT_DETECTED";
+      default:
+        return "UNKNOWN";
+    }
   }
 
   cds2str(state) {
@@ -275,14 +288,13 @@ class PortailDouble {
     // Get the current contact state.
     var old_state = this.getContact_ContactSensorState();
 
+    // Update the contact value and recompute the state.
+    this.Contact_Value = value;
+    var new_state = this.getContact_ContactSensorState();
 
     if (old_state != new_state) {
       this.log("Update contact sensor state from %s to: %s", old_state, new_state);
     }
-
-    // Update the contact value and recompute the state.
-    this.Contact_Value = value;
-    var new_state = this.getContact_ContactSensorState();
 
     this.updateStatesFromGPIO(false);
 
