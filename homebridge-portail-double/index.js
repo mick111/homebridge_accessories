@@ -17,7 +17,7 @@ module.exports = function (homebridge) {
 // Accessory constructor
 class PortailDouble {
   constructor(log, config) {
-    this.log = log;
+    this.log.debug. = log;
     this.name = config.name;
 
     this.GrandeOuverture_GPIO = config.GrandeOuverture_GPIO;
@@ -49,10 +49,7 @@ class PortailDouble {
     this.ContactPollTimeMS = 1000;
     this.resetPollTimer(true);
 
-    // rpio.poll(this.Contact_GPIO, this.pollcb.bind(this));
-
     // Services instantiations
-
     // Information
     this.informationService = new Service.AccessoryInformation();
     this.informationService
@@ -61,28 +58,19 @@ class PortailDouble {
       .setCharacteristic(Characteristic.SerialNumber, "MM SN");
 
     // Switch 1
-    this.GrandeOuverture_SwitchService = new Service.Switch(
-      "Grande Ouverture",
-      "button1"
-    );
+    this.GrandeOuverture_SwitchService = new Service.Switch("Grande Ouverture");
     this.GrandeOuverture_SwitchService.getCharacteristic(Characteristic.On)
       .onGet(this.getGrandeOuverture_SwitchState.bind(this))
       .onSet(this.setGrandeOuverture_SwitchState.bind(this));
 
     // Switch 2
-    this.PetiteOuverture_SwitchService = new Service.Switch(
-      "Petite Ouverture",
-      "button2"
-    );
+    this.PetiteOuverture_SwitchService = new Service.Switch("Petite Ouverture");
     this.PetiteOuverture_SwitchService.getCharacteristic(Characteristic.On)
       .onGet(this.getPetiteOuverture_SwitchState.bind(this))
       .onSet(this.setPetiteOuverture_SwitchState.bind(this));
 
     // Contact
-    this.Contact_ContactSensorService = new Service.ContactSensor(
-      "Contact Sensor",
-      "contact"
-    );
+    this.Contact_ContactSensorService = new Service.ContactSensor("Contact Sensor");
     this.Contact_ContactSensorService.getCharacteristic(
       Characteristic.ContactSensorState
     ).onGet(this.getContact_ContactSensorState.bind(this));
@@ -160,7 +148,7 @@ class PortailDouble {
     var contact_state = this.getContact_ContactSensorState();
     // The contact is not detected <=> the door is currently open
     this.GarageDoor_currentDoorState = (contact_state == Characteristic.ContactSensorState.CONTACT_NOT_DETECTED) ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
-    this.log("Set Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
+    this.log.debug.("Set Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
   }
 
   getContact_ContactSensorState() {
@@ -173,7 +161,7 @@ class PortailDouble {
     var state = this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH) ?
       Characteristic.ContactSensorState.CONTACT_NOT_DETECTED :
       Characteristic.ContactSensorState.CONTACT_DETECTED;
-    this.log("Get Contact Sensor State: %s", this.css2str(state));
+    this.log.debug("Get Contact Sensor State: %s", this.css2str(state));
     return state;
   }
 
@@ -211,18 +199,18 @@ class PortailDouble {
     // Characteristisc.CurrentDoorState.OPENING = 2;
     // Characteristic.CurrentDoorState.CLOSING = 3;
     // Characteristic.CurrentDoorState.STOPPED = 4;
-    this.log("Get Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
+    this.log.debug("Get Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
     return this.GarageDoor_currentDoorState;
   }
 
   getTargetDoorState() {
-    this.log("Get Target: %s", this.cds2str(this.GarageDoor_targetDoorState));
+    this.log.debug("Get Target: %s", this.cds2str(this.GarageDoor_targetDoorState));
     return this.GarageDoor_targetDoorState;
   }
 
   setDoorRequest(value) {
     // Set the current request
-    this.log("Set Request: %s", this.cds2str(this.GarageDoor_targetDoorState));
+    this.log.debug("Set Request: %s", this.cds2str(this.GarageDoor_targetDoorState));
     this.GarageDoor_doorStateCurrentRequest = value;
 
     // Invalidate the timer if an existing one is set.
@@ -237,7 +225,7 @@ class PortailDouble {
 
   setTargetDoorState(value) {
     // Get a request from Homekit to set the door's garage target state.
-    this.log("Set Target: %s", this.cds2str(this.GarageDoor_targetDoorState));
+    this.log.debug("Set Target: %s", this.cds2str(this.GarageDoor_targetDoorState));
     this.GarageDoor_targetDoorState = value;
 
     // We register the request, temporarly during 40s, approximately the time to open or close the door.
@@ -276,12 +264,12 @@ class PortailDouble {
      */
     rpio.msleep(20);
     var value2 = rpio.read(this.Contact_GPIO);
-    this.log("Contact on pin P%d is %s, (%s after 20ms)", this.Contact_GPIO, value, value2);
+    this.log.debug("Contact on pin P%d is %s, (%s after 20ms)", this.Contact_GPIO, value, value2);
     if (value != value2) {
       // The value has changed, ignore it. Relaunch the timer without reading the GPIO.
       this.resetPollTimer(true);
     }
-    this.log("Contact on pin P%d is considered stable", this.Contact_GPIO);
+    this.log.debug("Contact on pin P%d is considered stable", this.Contact_GPIO);
 
     // The value seems stable enough to consider that it is "value".
 
@@ -293,7 +281,7 @@ class PortailDouble {
     var new_state = this.getContact_ContactSensorState();
 
     if (old_state != new_state) {
-      this.log("Update contact sensor state from %s to: %s", old_state, new_state);
+      this.log.debug("Update contact sensor state from %s to: %s", old_state, new_state);
     }
 
     this.updateStatesFromGPIO(false);
@@ -303,13 +291,17 @@ class PortailDouble {
 
     // Update the current door state, advertize if necessary
     if (this.GarageDoor_doorStateCurrentRequest == Characteristic.CurrentDoorState.OPEN) {
-      // Subtle case, the request was done during less than 40s, the door is "opening".
+      // The request was done during less than 40s, the door is "opening".
+      this.log.debug("Avertise Current: %s", this.cds2str(Characteristic.CurrentDoorState.OPENING));
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(Characteristic.CurrentDoorState.OPENING);
+    } else if (this.GarageDoor_doorStateCurrentRequest == Characteristic.CurrentDoorState.CLOSED) {
+      // The request was done during less than 40s, the door is "closing".
+      this.log.debug("Avertise Current: %s", this.cds2str(Characteristic.CurrentDoorState.CLOSING));
+      this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(Characteristic.CurrentDoorState.CLOSING);
     } else {
       // We do not know when the request was performed.
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.GarageDoor_currentDoorState);
     }
-
     this.resetPollTimer(true);
   }
 
