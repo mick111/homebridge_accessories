@@ -58,13 +58,13 @@ class PortailDouble {
       .setCharacteristic(Characteristic.SerialNumber, "MM SN");
 
     // Switch 1
-    this.GrandeOuverture_SwitchService = new Service.Switch("Grande Ouverture");
+    this.GrandeOuverture_SwitchService = new Service.Switch("Grande Ouverture", "grand");
     this.GrandeOuverture_SwitchService.getCharacteristic(Characteristic.On)
       .onGet(this.getGrandeOuverture_SwitchState.bind(this))
       .onSet(this.setGrandeOuverture_SwitchState.bind(this));
 
     // Switch 2
-    this.PetiteOuverture_SwitchService = new Service.Switch("Petite Ouverture");
+    this.PetiteOuverture_SwitchService = new Service.Switch("Petite Ouverture", "petit");
     this.PetiteOuverture_SwitchService.getCharacteristic(Characteristic.On)
       .onGet(this.getPetiteOuverture_SwitchState.bind(this))
       .onSet(this.setPetiteOuverture_SwitchState.bind(this));
