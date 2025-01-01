@@ -306,6 +306,11 @@ class PortailDouble {
     if (value != value2) {
       // The value has changed, ignore it. Relaunch the timer without reading the GPIO.
       this.resetPollTimer(true);
+      this.log.debug(
+        "Contact on pin P%d is considered unstable",
+        this.Contact_GPIO
+      );
+      return;
     }
     this.log.debug(
       "Contact on pin P%d is considered stable",
