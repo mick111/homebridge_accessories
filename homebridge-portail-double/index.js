@@ -160,6 +160,7 @@ class PortailDouble {
     var contact_state = this.getContact_ContactSensorState();
     // The contact is not detected <=> the door is currently open
     this.GarageDoor_currentDoorState = (contact_state == Characteristic.ContactSensorState.CONTACT_NOT_DETECTED) ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
+    this.log("Set Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
   }
 
   getContact_ContactSensorState() {
@@ -174,24 +175,41 @@ class PortailDouble {
       Characteristic.ContactSensorState.CONTACT_DETECTED;
   }
 
+  cds2str(state) {
+    switch (state) {
+      case Characteristic.CurrentDoorState.OPEN:
+        return "OPEN";
+      case Characteristic.CurrentDoorState.CLOSED:
+        return "CLOSED";
+      case Characteristic.CurrentDoorState.OPENING:
+        return "OPENING";
+      case Characteristic.CurrentDoorState.CLOSING:
+        return "CLOSING";
+      case Characteristic.CurrentDoorState.STOPPED:
+        return "STOPPED";
+      default:
+        return "UNKNOWN";
+    }
+  }
+
   getCurrentDoorState() {
     // Characteristic.CurrentDoorState.OPEN = 0;
     // Characteristic.CurrentDoorState.CLOSED = 1;
     // Characteristisc.CurrentDoorState.OPENING = 2;
     // Characteristic.CurrentDoorState.CLOSING = 3;
     // Characteristic.CurrentDoorState.STOPPED = 4;
+    this.log("Get Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
     return this.GarageDoor_currentDoorState;
   }
 
   getTargetDoorState() {
-    this.log("Get Garage door Target state: %s", this.GarageDoor_targetDoorState);
+    this.log("Get Target: %s", this.cds2str(this.GarageDoor_targetDoorState));
     return this.GarageDoor_targetDoorState;
   }
 
   setDoorRequest(value) {
-    this.log("Garage door Target request: %s", value);
-
     // Set the current request
+    this.log("Set Request: %s", this.cds2str(this.GarageDoor_targetDoorState));
     this.GarageDoor_doorStateCurrentRequest = value;
 
     // Invalidate the timer if an existing one is set.
@@ -206,7 +224,7 @@ class PortailDouble {
 
   setTargetDoorState(value) {
     // Get a request from Homekit to set the door's garage target state.
-    this.log("Set Garage door Target state: %s", value);
+    this.log("Set Target: %s", this.cds2str(this.GarageDoor_targetDoorState));
     this.GarageDoor_targetDoorState = value;
 
     // We register the request, temporarly during 40s, approximately the time to open or close the door.
@@ -245,16 +263,23 @@ class PortailDouble {
      */
     rpio.msleep(20);
     var value2 = rpio.read(this.Contact_GPIO);
-    this.log.debug("Contact on pin P%d has set to %s, (%s after 20ms)", this.Contact_GPIO, value, value2);
+    this.log("Contact on pin P%d is %s, (%s after 20ms)", this.Contact_GPIO, value, value2);
     if (value != value2) {
       // The value has changed, ignore it. Relaunch the timer without reading the GPIO.
       this.resetPollTimer(true);
     }
+    this.log("Contact on pin P%d is considered stable", this.Contact_GPIO);
 
     // The value seems stable enough to consider that it is "value".
 
     // Get the current contact state.
     var old_state = this.getContact_ContactSensorState();
+
+
+    if (old_state != new_state) {
+      this.log("Update contact sensor state from %s to: %s", old_state, new_state);
+    }
+
     // Update the contact value and recompute the state.
     this.Contact_Value = value;
     var new_state = this.getContact_ContactSensorState();
@@ -271,10 +296,6 @@ class PortailDouble {
     } else {
       // We do not know when the request was performed.
       this.GarageDoorOpenerService.getCharacteristic(Characteristic.CurrentDoorState).updateValue(this.GarageDoor_currentDoorState);
-    }
-
-    if (old_state != new_state) {
-      this.debug.log("Update contact sensor state from %s to: %s", old_state, new_state);
     }
 
     this.resetPollTimer(true);
