@@ -369,7 +369,7 @@ class PortailDouble {
     }
     this.resetPollTimer(true);
 
-    printStates();
+    this.printStates();
   }
 
   resetPollTimer(pollagain) {
