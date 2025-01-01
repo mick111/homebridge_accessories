@@ -17,7 +17,7 @@ module.exports = function (homebridge) {
 // Accessory constructor
 class PortailDouble {
   constructor(log, config) {
-    this.log.debug. = log;
+    this.log = log;
     this.name = config.name;
 
     this.GrandeOuverture_GPIO = config.GrandeOuverture_GPIO;
@@ -148,7 +148,7 @@ class PortailDouble {
     var contact_state = this.getContact_ContactSensorState();
     // The contact is not detected <=> the door is currently open
     this.GarageDoor_currentDoorState = (contact_state == Characteristic.ContactSensorState.CONTACT_NOT_DETECTED) ? Characteristic.CurrentDoorState.OPEN : Characteristic.CurrentDoorState.CLOSED;
-    this.log.debug.("Set Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
+    this.log.debug("Set Current: %s", this.cds2str(this.GarageDoor_currentDoorState));
   }
 
   getContact_ContactSensorState() {
