@@ -1,14 +1,4 @@
-import {
-  open,
-  OUTPUT,
-  HIGH,
-  INPUT,
-  PULL_UP,
-  read,
-  write,
-  LOW,
-  msleep,
-} from "rpio";
+var rpio = require("rpio");
 var Service, Characteristic, HomebridgeAPI;
 
 export default function (homebridge) {
@@ -49,9 +39,9 @@ class PortailDouble {
     this.GarageDoorOpeningTimeMS = 40000;
 
     // Ouverture des GPIOS
-    open(this.GrandeOuverture_GPIO, OUTPUT, HIGH);
-    open(this.PetiteOuverture_GPIO, OUTPUT, HIGH);
-    open(this.Contact_GPIO, INPUT, PULL_UP);
+    rpio.open(this.GrandeOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
+    rpio.open(this.PetiteOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
+    rpio.open(this.Contact_GPIO, rpio.INPUT, rpio.PULL_UP);
 
     // Polling for Input changes
     this.ContactPollTimeMS = 1000;
@@ -116,7 +106,7 @@ class PortailDouble {
   }
 
   getGrandeOuverture_SwitchState() {
-    var onCommand = read(this.GrandeOuverture_GPIO);
+    var onCommand = rpio.read(this.GrandeOuverture_GPIO);
     this.log.debug(
       "Getting Grande ouverture state: %s %s",
       onCommand,
@@ -127,7 +117,7 @@ class PortailDouble {
 
   setGrandeOuverture_SwitchState(value) {
     this.log.debug("Setting Grande ouverture state to %s", value);
-    write(this.GrandeOuverture_GPIO, value ? LOW : HIGH);
+    rpio.write(this.GrandeOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
     if (value) {
       var c = this.GrandeOuverture_SwitchService.getCharacteristic(
@@ -138,7 +128,7 @@ class PortailDouble {
   }
 
   getPetiteOuverture_SwitchState() {
-    var onCommand = read(this.PetiteOuverture_GPIO);
+    var onCommand = rpio.read(this.PetiteOuverture_GPIO);
     this.log.debug(
       "Getting Petite ouverture state: %s %s",
       onCommand,
@@ -149,7 +139,7 @@ class PortailDouble {
 
   setPetiteOuverture_SwitchState(value) {
     this.log.debug("Setting Petite ouverture state to %s", value);
-    write(this.PetiteOuverture_GPIO, value ? LOW : HIGH);
+    rpio.write(this.PetiteOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
     if (value) {
       var c = this.PetiteOuverture_SwitchService.getCharacteristic(
@@ -161,7 +151,7 @@ class PortailDouble {
 
   updateStatesFromGPIO(do_read) {
     if (do_read) {
-      this.Contact_Value = read(this.Contact_GPIO);
+      this.Contact_Value = rpio.read(this.Contact_GPIO);
     }
     var contact_state = this.getContact_ContactSensorState();
     // The contact is not detected <=> the door is currently open
@@ -183,7 +173,7 @@ class PortailDouble {
     // - closedValueIsHigh == true  and Contact_Value == LOW  => (true  ^ false) == true  -> NOT_DETECTED
     // - closedValueIsHigh == false and Contact_Value == HIGH => (false ^ true)  == true  -> NOT_DETECTED
     var state =
-      this.Contact_closedValueIsHigh ^ (this.Contact_Value == HIGH)
+      this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH)
         ? Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
         : Characteristic.ContactSensorState.CONTACT_DETECTED;
     this.log.debug("Get Contact Sensor State: %s", this.css2str(state));
@@ -301,13 +291,13 @@ class PortailDouble {
   pollcb() {
     this.resetPollTimer(false);
 
-    var value = read(this.Contact_GPIO);
+    var value = rpio.read(this.Contact_GPIO);
     /*
      * Wait for a small period of time to avoid rapid changes.
      * If the pin has not the same value after the wait then ignore it.
      */
-    msleep(20);
-    var value2 = read(this.Contact_GPIO);
+    rpio.msleep(20);
+    var value2 = rpio.read(this.Contact_GPIO);
     this.log.debug(
       "Contact on pin P%d is %s, (%s after 20ms)",
       this.Contact_GPIO,
