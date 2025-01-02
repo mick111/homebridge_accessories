@@ -204,7 +204,7 @@ class PortailDouble {
       case Characteristic.CurrentDoorState.STOPPED:
         return "   STOPPED  ";
       default:
-        return "UNKNOWN";
+        return "   UNKNOWN  ";
     }
   }
 
@@ -396,7 +396,7 @@ class PortailDouble {
     this.log.debug("|              |     Class    |      HAP     |");
     this.log.debug("+--------------+--------------+--------------+");
     this.log.debug(
-      "| Door.Current |   %s   |   %s   |",
+      "| Door.Current | %s | %s |",
       this.cds2str(this.GarageDoor_currentDoorState),
       this.cds2str(
         this.GarageDoorOpenerService.getCharacteristic(
@@ -429,5 +429,6 @@ class PortailDouble {
         ).value
       )
     );
+    this.log.debug("+--------------+--------------+--------------+");
   }
 }
