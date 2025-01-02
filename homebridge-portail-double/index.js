@@ -194,15 +194,15 @@ class PortailDouble {
   cds2str(state) {
     switch (state) {
       case Characteristic.CurrentDoorState.OPEN:
-        return "  OPEN ";
+        return "    OPEN    ";
       case Characteristic.CurrentDoorState.CLOSED:
-        return " CLOSED";
+        return "   CLOSED   ";
       case Characteristic.CurrentDoorState.OPENING:
-        return "OPENING";
+        return "   OPENING  ";
       case Characteristic.CurrentDoorState.CLOSING:
-        return "CLOSING";
+        return "   CLOSING  ";
       case Characteristic.CurrentDoorState.STOPPED:
-        return "STOPPED";
+        return "   STOPPED  ";
       default:
         return "UNKNOWN";
     }
@@ -392,11 +392,11 @@ class PortailDouble {
   }
 
   printStates() {
-    this.log.debug("+==============+===================+");
-    this.log.debug("|     DOOR     |  Class  |   HAP   |");
-    this.log.debug("+--------------+---------+---------+");
+    this.log.debug("+==============+==============+==============+");
+    this.log.debug("|              |     Class    |      HAP     |");
+    this.log.debug("+--------------+--------------+--------------+");
     this.log.debug(
-      "| Door.Current | %s | %s |",
+      "| Door.Current |   %s   |   %s   |",
       this.cds2str(this.GarageDoor_currentDoorState),
       this.cds2str(
         this.GarageDoorOpenerService.getCharacteristic(
@@ -404,7 +404,7 @@ class PortailDouble {
         ).value
       )
     );
-    this.log.debug("+--------------+---------+---------+");
+    this.log.debug("+--------------+--------------+--------------+");
     this.log.debug(
       "| Door.Target  | %s | %s |",
       this.cds2str(this.GarageDoor_targetDoorState),
@@ -414,22 +414,20 @@ class PortailDouble {
         ).value
       )
     );
-    this.log.debug("+--------------+---------+---------+");
+    this.log.debug("+--------------+--------------+--------------+");
     this.log.debug(
-      "| Door.Request | %s |         |",
+      "| Door.Request | %s |              |",
       this.cds2str(this.GarageDoor_doorStateCurrentRequest)
     );
-    this.log.debug("+--------------+---------+---------+");
-
     this.log.debug("+==============+==============+==============+");
-    this.log.debug("|   CONTACT    |    Class     |      HAP     |");
-    this.log.debug("+--------------+--------------+--------------+");
     this.log.debug(
       "| Contact      | %s | %s |",
       this.css2str(this.Contact_Value),
-      this.Contact_ContactSensorService.getCharacteristic(
-        Characteristic.ContactSensorState
-      ).value
+      this.css2str(
+        this.Contact_ContactSensorService.getCharacteristic(
+          Characteristic.ContactSensorState
+        ).value
+      )
     );
   }
 }
