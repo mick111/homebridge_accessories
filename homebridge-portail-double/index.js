@@ -410,7 +410,7 @@ class PortailDouble {
       this.cds2str(this.GarageDoor_targetDoorState),
       this.cds2str(
         this.GarageDoorOpenerService.getCharacteristic(
-          this.cds2strCharacteristic.TargetDoorState
+          Characteristic.TargetDoorState
         ).value
       )
     );
