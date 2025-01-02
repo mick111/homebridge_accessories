@@ -374,8 +374,8 @@ class PortailDouble {
       // We reset the target with the current state.
       this.GarageDoor_targetDoorState = this.GarageDoor_currentDoorState;
       this.GarageDoorOpenerService.getCharacteristic(
-        Characteristic.CurrentDoorState
-      ).updateValue(this.GarageDoor_currentDoorState);
+        Characteristic.TargetDoorState
+      ).updateValue(this.GarageDoor_targetDoorState);
     }
     this.resetPollTimer(true);
 
