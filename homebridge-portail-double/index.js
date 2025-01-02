@@ -422,7 +422,7 @@ class PortailDouble {
     this.log.debug("+==============+==============+==============+");
     this.log.debug(
       "| Contact      | %s | %s |",
-      this.css2str(this.Contact_Value),
+      this.css2str(this.getContact_ContactSensorState()),
       this.css2str(
         this.Contact_ContactSensorService.getCharacteristic(
           Characteristic.ContactSensorState
@@ -430,5 +430,10 @@ class PortailDouble {
       )
     );
     this.log.debug("+--------------+--------------+--------------+");
+    this.log.debug(
+      "| Contact_value | %s |              |",
+      this.Contact_Value == rpio.HIGH ? "    HIGH    " : "     LOW     "
+    );
+    this.log.debug("+==============+==============+==============+");
   }
 }
