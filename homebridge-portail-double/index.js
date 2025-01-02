@@ -1,7 +1,7 @@
 var rpio = require("rpio");
 var Service, Characteristic, HomebridgeAPI;
 
-export default function (homebridge) {
+module.exports = function (homebridge) {
   Service = homebridge.hap.Service;
   Characteristic = homebridge.hap.Characteristic;
   HomebridgeAPI = homebridge;
@@ -12,7 +12,7 @@ export default function (homebridge) {
     "PortailDouble",
     PortailDouble
   );
-}
+};
 
 // Accessory constructor
 class PortailDouble {
