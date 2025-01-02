@@ -176,7 +176,6 @@ class PortailDouble {
       this.Contact_closedValueIsHigh ^ (this.Contact_Value == rpio.HIGH)
         ? Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
         : Characteristic.ContactSensorState.CONTACT_DETECTED;
-    this.log.debug("Get Contact Sensor State: %s", this.css2str(state));
     return state;
   }
 
@@ -392,11 +391,11 @@ class PortailDouble {
   }
 
   printStates() {
-    this.log.debug("+==============+==============+==============+");
-    this.log.debug("|              |     Class    |      HAP     |");
-    this.log.debug("+--------------+--------------+--------------+");
+    this.log.debug("+===============+==============+==============+");
+    this.log.debug("|               |     Class    |      HAP     |");
+    this.log.debug("+---------------+--------------+--------------+");
     this.log.debug(
-      "| Door.Current | %s | %s |",
+      "| Door.Current  | %s | %s |",
       this.cds2str(this.GarageDoor_currentDoorState),
       this.cds2str(
         this.GarageDoorOpenerService.getCharacteristic(
@@ -404,9 +403,9 @@ class PortailDouble {
         ).value
       )
     );
-    this.log.debug("+--------------+--------------+--------------+");
+    this.log.debug("+---------------+--------------+--------------+");
     this.log.debug(
-      "| Door.Target  | %s | %s |",
+      "| Door.Target   | %s | %s |",
       this.cds2str(this.GarageDoor_targetDoorState),
       this.cds2str(
         this.GarageDoorOpenerService.getCharacteristic(
@@ -414,14 +413,14 @@ class PortailDouble {
         ).value
       )
     );
-    this.log.debug("+--------------+--------------+--------------+");
+    this.log.debug("+---------------+--------------+--------------+");
     this.log.debug(
-      "| Door.Request | %s |              |",
+      "| Door.Request  | %s |              |",
       this.cds2str(this.GarageDoor_doorStateCurrentRequest)
     );
-    this.log.debug("+==============+==============+==============+");
+    this.log.debug("+===============+==============+==============+");
     this.log.debug(
-      "| Contact      | %s | %s |",
+      "| Contact       | %s | %s |",
       this.css2str(this.getContact_ContactSensorState()),
       this.css2str(
         this.Contact_ContactSensorService.getCharacteristic(
@@ -429,11 +428,11 @@ class PortailDouble {
         ).value
       )
     );
-    this.log.debug("+--------------+--------------+--------------+");
+    this.log.debug("+---------------+--------------+--------------+");
     this.log.debug(
-      "| Contact_value | %s |              |",
-      this.Contact_Value == rpio.HIGH ? "    HIGH    " : "     LOW     "
+      "| Contact_Value | %s |              |",
+      this.Contact_Value == rpio.HIGH ? "    HIGH    " : "    LOW     "
     );
-    this.log.debug("+==============+==============+==============+");
+    this.log.debug("+===============+==============+==============+");
   }
 }
