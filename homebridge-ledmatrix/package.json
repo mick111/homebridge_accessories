@@ -25,8 +25,5 @@
   "bugs": {
     "url": "https://github.com/mick111/homebridge-ledmatrix/issues"
   },
-  "homepage": "https://github.com/mick111/homebridge-ledmatrix#readme",
-  "dependencies": {
-    "onoff" : "1.1.0"
-  }
+  "homepage": "https://github.com/mick111/homebridge-ledmatrix#readme"
 }
