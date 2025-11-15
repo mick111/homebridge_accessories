@@ -333,6 +333,9 @@ class PortailDouble {
     );
     this.GarageDoor2_targetDoorState = value;
 
+    // We register the request, temporarily during the opening/closing time.
+    this.setDoor2Request(value);
+
     if (value == this.GarageDoor2_currentDoorState) {
       // The state is already at the target, nothing to do
       this.log.debug("The state is already at the target, nothing to do");
@@ -358,8 +361,8 @@ class PortailDouble {
     this.GarageDoor2_doorStateCurrentRequest = value;
 
     // Invalidate the timer if an existing one is set.
-    if (this.DoorRequestResetTimer != null) {
-      clearTimeout(this.DoorRequestResetTimer);
+    if (this.Door2RequestResetTimer != null) {
+      clearTimeout(this.Door2RequestResetTimer);
     }
 
     // Set a timer to indicate that the request has been terminated.
@@ -373,6 +376,7 @@ class PortailDouble {
       this.PetiteOuverture_SwitchService,
       this.Contact_ContactSensorService,
       this.GarageDoorOpenerService,
+      this.GarageDoor2OpenerService,
     ];
   }
 
