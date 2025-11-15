@@ -18,7 +18,8 @@ module.exports = function (homebridge) {
 class PortailDouble {
   constructor(log, config) {
     this.log = log;
-    this.name = config.name;
+    this.namePortail = config.namePortail;
+    this.namePortillon = config.namePortillon;
 
     this.GrandeOuverture_GPIO = config.GrandeOuverture_GPIO;
     this.PetiteOuverture_GPIO = config.PetiteOuverture_GPIO;
@@ -31,12 +32,17 @@ class PortailDouble {
     // Initialisation of the states
     this.GarageDoor_targetDoorState = Characteristic.CurrentDoorState.CLOSED;
     this.GarageDoor_currentDoorState = Characteristic.CurrentDoorState.CLOSED;
+    this.GarageDoor2_targetDoorState = Characteristic.CurrentDoorState.CLOSED;
+    this.GarageDoor2_currentDoorState = Characteristic.CurrentDoorState.CLOSED;
 
     // To know that there is a request to open or close the door
     // from HomeKit.
     this.GarageDoor_doorStateCurrentRequest = null;
+    this.GarageDoor2_doorStateCurrentRequest = null;
     this.DoorRequestResetTimer = null;
+    this.Door2RequestResetTimer = null;
     this.GarageDoorOpeningTimeMS = 40000;
+    this.GarageDoor2OpeningTimeMS = 40000;
 
     // Ouverture des GPIOS
     rpio.open(this.GrandeOuverture_GPIO, rpio.OUTPUT, rpio.HIGH);
@@ -82,7 +88,7 @@ class PortailDouble {
     ).onGet(this.getContact_ContactSensorState.bind(this));
 
     // Garage Door
-    this.GarageDoorOpenerService = new Service.GarageDoorOpener("Portail");
+    this.GarageDoorOpenerService = new Service.GarageDoorOpener(this.namePortail);
     // Required Characteristics
     // Characteristic.CurrentDoorState : [READ]
     // this.GarageDoorOpenerService.getCharacteristic(
@@ -99,6 +105,29 @@ class PortailDouble {
     // Return always false for Obstruction
     // Characteristic.ObstructionDetected : [READ]
     this.GarageDoorOpenerService.getCharacteristic(
+      Characteristic.ObstructionDetected
+    ).onGet(function () {
+      return false;
+    });
+
+    // Garage Door 2
+    this.GarageDoor2OpenerService = new Service.GarageDoorOpener(this.namePortillon);
+    // Required Characteristics
+    // Characteristic.CurrentDoorState : [READ]
+    // this.GarageDoor2OpenerService.getCharacteristic(
+    //   Characteristic.CurrentDoorState
+    // ).onGet(this.getCurrentDoor2State.bind(this));
+
+    // Characteristic.TargetDoorState : [READ / WRITE]
+    this.GarageDoor2OpenerService.getCharacteristic(
+      Characteristic.TargetDoorState
+    )
+      .onGet(this.getTargetDoor2State.bind(this))
+      .onSet(this.setTargetDoor2State.bind(this));
+
+    // Return always false for Obstruction
+    // Characteristic.ObstructionDetected : [READ]
+    this.GarageDoor2OpenerService.getCharacteristic(
       Characteristic.ObstructionDetected
     ).onGet(function () {
       return false;
@@ -120,10 +149,11 @@ class PortailDouble {
     rpio.write(this.GrandeOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
     if (value) {
-      var c = this.GrandeOuverture_SwitchService.getCharacteristic(
-        Characteristic.On
-      );
-      setTimeout(c.setValue.bind(c, false), this.TempSwitchDurationMS);
+      setTimeout(() => {
+        this.GrandeOuverture_SwitchService.getCharacteristic(
+          Characteristic.On
+        ).setValue(false);
+      }, this.TempSwitchDurationMS);
     }
   }
 
@@ -142,10 +172,11 @@ class PortailDouble {
     rpio.write(this.PetiteOuverture_GPIO, value ? rpio.LOW : rpio.HIGH);
 
     if (value) {
-      var c = this.PetiteOuverture_SwitchService.getCharacteristic(
-        Characteristic.On
-      );
-      setTimeout(c.setValue.bind(c, false), this.TempSwitchDurationMS);
+      setTimeout(() => {
+        this.PetiteOuverture_SwitchService.getCharacteristic(
+          Characteristic.On
+        ).setValue(false);
+      }, this.TempSwitchDurationMS);
     }
   }
 
@@ -159,6 +190,7 @@ class PortailDouble {
       contact_state == Characteristic.ContactSensorState.CONTACT_NOT_DETECTED
         ? Characteristic.CurrentDoorState.OPEN
         : Characteristic.CurrentDoorState.CLOSED;
+    this.GarageDoor2_currentDoorState = this.GarageDoor_currentDoorState;
     this.log.debug(
       "Set Current: %s",
       this.cds2str(this.GarageDoor_currentDoorState)
@@ -207,18 +239,18 @@ class PortailDouble {
     }
   }
 
-  getCurrentDoorState() {
-    // Characteristic.CurrentDoorState.OPEN = 0;
-    // Characteristic.CurrentDoorState.CLOSED = 1;
-    // Characteristisc.CurrentDoorState.OPENING = 2;
-    // Characteristic.CurrentDoorState.CLOSING = 3;
-    // Characteristic.CurrentDoorState.STOPPED = 4;
-    this.log.debug(
-      "Get Current: %s",
-      this.cds2str(this.GarageDoor_currentDoorState)
-    );
-    return this.GarageDoor_currentDoorState;
-  }
+  // getCurrentDoorState() {
+  //   // Characteristic.CurrentDoorState.OPEN = 0;
+  //   // Characteristic.CurrentDoorState.CLOSED = 1;
+  //   // Characteristisc.CurrentDoorState.OPENING = 2;
+  //   // Characteristic.CurrentDoorState.CLOSING = 3;
+  //   // Characteristic.CurrentDoorState.STOPPED = 4;
+  //   this.log.debug(
+  //     "Get Current: %s",
+  //     this.cds2str(this.GarageDoor_currentDoorState)
+  //   );
+  //   return this.GarageDoor_currentDoorState;
+  // }
 
   getTargetDoorState() {
     this.log.debug(
@@ -242,11 +274,7 @@ class PortailDouble {
     }
 
     // Set a timer to indicate that the request has been terminated.
-    this.DoorRequestResetTimer = setTimeout(
-      this.setDoorRequest.bind(this),
-      this.GarageDoorOpeningTimeMS,
-      null
-    );
+    this.DoorRequestResetTimer = setTimeout(() => this.setDoorRequest(null), this.GarageDoorOpeningTimeMS);
   }
 
   setTargetDoorState(value) {
@@ -275,6 +303,67 @@ class PortailDouble {
     this.GrandeOuverture_SwitchService.getCharacteristic(
       Characteristic.On
     ).setValue(true);
+  }
+
+  // getCurrentDoor2State() {
+  //   // Characteristic.CurrentDoorState.OPEN = 0;
+  //   // Characteristic.CurrentDoorState.CLOSED = 1;
+  //   // Characteristisc.CurrentDoorState.OPENING = 2;
+  //   // Characteristic.CurrentDoorState.CLOSING = 3;
+  //   // Characteristic.CurrentDoorState.STOPPED = 4;
+  //   this.log.debug(
+  //     "Get Current Portillon: %s",
+  //     this.cds2str(this.GarageDoor2_currentDoorState)
+  //   );
+  //   return this.GarageDoor2_currentDoorState;
+  // }
+
+  getTargetDoor2State() {
+    this.log.debug(
+      "Get Portillon Target: %s",
+      this.cds2str(this.GarageDoor2_targetDoorState)
+    );
+    return this.GarageDoor2_targetDoorState;
+  }
+
+  setTargetDoor2State(value) {
+    this.log.debug(
+      "Set Portillon Target: %s",
+      this.cds2str(this.GarageDoor2_targetDoorState)
+    );
+    this.GarageDoor2_targetDoorState = value;
+
+    if (value == this.GarageDoor2_currentDoorState) {
+      // The state is already at the target, nothing to do
+      this.log.debug("The state is already at the target, nothing to do");
+      return;
+    }
+
+    // Advertise the doors' target state
+    this.GarageDoor2OpenerService.getCharacteristic(
+      Characteristic.TargetDoorState
+    ).updateValue(value);
+
+    // Make the Petite Ouverture Switch to be activated
+    this.PetiteOuverture_SwitchService.getCharacteristic(
+      Characteristic.On
+    ).setValue(true);
+  }
+
+  setDoor2Request(value) {
+    this.log.debug(
+      "Set Portillon Request: %s",
+      this.cds2str(this.GarageDoor2_targetDoorState)
+    );
+    this.GarageDoor2_doorStateCurrentRequest = value;
+
+    // Invalidate the timer if an existing one is set.
+    if (this.DoorRequestResetTimer != null) {
+      clearTimeout(this.DoorRequestResetTimer);
+    }
+
+    // Set a timer to indicate that the request has been terminated.
+    this.Door2RequestResetTimer = setTimeout(() => this.setDoor2Request(null), this.GarageDoor2OpeningTimeMS);
   }
 
   getServices() {
@@ -341,7 +430,7 @@ class PortailDouble {
       Characteristic.ContactSensorState
     ).updateValue(new_state);
 
-    // Update the current door state, advertize if necessary
+    // Update the current main door state, advertize if necessary
     if (
       this.GarageDoor_doorStateCurrentRequest ==
       Characteristic.CurrentDoorState.OPEN
@@ -377,6 +466,43 @@ class PortailDouble {
         Characteristic.TargetDoorState
       ).updateValue(this.GarageDoor_targetDoorState);
     }
+
+    // Update the current portillon state, advertize if necessary
+    if (
+      this.GarageDoor2_doorStateCurrentRequest ==
+      Characteristic.CurrentDoorState.OPEN
+    ) {
+      // The request was done during less than 40s, the door is "opening".
+      this.log.debug(
+        "Avertise Current: %s",
+        this.cds2str(Characteristic.CurrentDoorState.OPENING)
+      );
+      this.GarageDoor2OpenerService.getCharacteristic(
+        Characteristic.CurrentDoorState
+      ).updateValue(Characteristic.CurrentDoorState.OPENING);
+    } else if (
+      this.GarageDoor2_doorStateCurrentRequest ==
+      Characteristic.CurrentDoorState.CLOSED
+    ) {
+      // The request was done during less than 40s, the door is "closing".
+      this.log.debug(
+        "Avertise Current: %s",
+        this.cds2str(Characteristic.CurrentDoorState.CLOSING)
+      );
+      this.GarageDoor2OpenerService.getCharacteristic(
+        Characteristic.CurrentDoorState
+      ).updateValue(Characteristic.CurrentDoorState.CLOSING);
+    } else {
+      // We do not know when the request was performed.
+      this.GarageDoor2OpenerService.getCharacteristic(
+        Characteristic.CurrentDoorState
+      ).updateValue(this.GarageDoor2_currentDoorState);
+      // We reset the target with the current state.
+      this.GarageDoor2_targetDoorState = this.GarageDoor2_currentDoorState;
+      this.GarageDoor2OpenerService.getCharacteristic(
+        Characteristic.TargetDoorState
+      ).updateValue(this.GarageDoor2_targetDoorState)
+    }
     this.resetPollTimer(true);
 
     this.printStates();
@@ -388,10 +514,7 @@ class PortailDouble {
     }
     this.polltimer = null;
     if (pollagain) {
-      this.polltimer = setTimeout(
-        this.pollcb.bind(this),
-        this.ContactPollTimeMS
-      );
+      this.polltimer = setTimeout(() => this.pollcb(), this.ContactPollTimeMS);
     }
   }
 
@@ -422,6 +545,31 @@ class PortailDouble {
     this.log.debug(
       "| Door.Request  | %s |              |",
       this.cds2str(this.GarageDoor_doorStateCurrentRequest)
+    );
+
+    this.log.debug(
+      "| Door2.Current | %s | %s |",
+      this.cds2str(this.GarageDoor2_currentDoorState),
+      this.cds2str(
+        this.GarageDoor2OpenerService.getCharacteristic(
+          Characteristic.CurrentDoorState
+        ).value
+      )
+    );
+    this.log.debug("+---------------+--------------+--------------+");
+    this.log.debug(
+      "| Door2.Target  | %s | %s |",
+      this.cds2str(this.GarageDoor2_targetDoorState),
+      this.cds2str(
+        this.GarageDoor2OpenerService.getCharacteristic(
+          Characteristic.TargetDoorState
+        ).value
+      )
+    );
+    this.log.debug("+---------------+--------------+--------------+");
+    this.log.debug(
+      "| Door2.Request | %s |              |",
+      this.cds2str(this.GarageDoor2_doorStateCurrentRequest)
     );
     this.log.debug("+===============+==============+==============+");
     this.log.debug(
