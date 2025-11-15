@@ -5,12 +5,19 @@
   "schema": {
     "type": "object",
     "properties": {
-      "name": {
-        "title": "Name",
+      "namePortail": {
+        "title": "Name of the main door",
         "type": "string",
         "required": true,
         "placeholder": "Portail",
         "default": "Portail"
+      },
+      "namePortillon": {
+        "title": "Name of the secondary door",
+        "type": "string",
+        "required": true,
+        "placeholder": "Portillon",
+        "default": "Portillon"
       },
       "GrandeOuverture_GPIO": {
         "title": "GPIO Physical PIN for big opening",
