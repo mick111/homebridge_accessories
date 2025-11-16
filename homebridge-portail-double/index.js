@@ -88,7 +88,7 @@ class PortailDouble {
     ).onGet(this.getContact_ContactSensorState.bind(this));
 
     // Garage Door
-    this.GarageDoorOpenerService = new Service.GarageDoorOpener(this.namePortail);
+    this.GarageDoorOpenerService = new Service.GarageDoorOpener(this.name, this.namePortail);
     // Required Characteristics
     // Characteristic.CurrentDoorState : [READ]
     // this.GarageDoorOpenerService.getCharacteristic(
@@ -111,7 +111,7 @@ class PortailDouble {
     });
 
     // Garage Door 2
-    this.GarageDoor2OpenerService = new Service.GarageDoorOpener(this.namePortillon);
+    this.GarageDoor2OpenerService = new Service.GarageDoorOpener(this.name, this.namePortillon);
     // Required Characteristics
     // Characteristic.CurrentDoorState : [READ]
     // this.GarageDoor2OpenerService.getCharacteristic(
